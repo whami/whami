@@ -1,0 +1,206 @@
+<?php
+
+/**
+ * Function that request for data to a source adapter form certain Bounding Box
+ *
+ * @param $bbox
+ * @param $lan
+ * @param $categoriesID
+ * @param $sourceID
+ * @param $maxRows
+ * @param $titleshrink
+ * @param $bodyshrink
+ * @param $linkshrink
+ * @param $maxRequestRows
+ * @param $sessionID
+ *
+ * @return Parsed response from the specific source adapter
+ */
+function whami_get_information_bounding_box($bbox, $lan, $categoriesID, $sourceID, $maxRows, $titleshrink, $bodyshrink, $linkshrink, $maxRequestRows, $sessionID) {
+  if (module_exists('whami_source_adapter_' . $sourceID) && function_exists('whami_get_information_bounding_box_' . $sourceID)) {
+    $function = 'whami_get_information_bounding_box_' . $sourceID;
+    $result = $function($bbox, $lan, $maxRequestRows);
+    return whami_source_adapter_parse_response($result, $maxRows, $titleshrink, $bodyshrink, $linkshrink, $categoriesID, $sourceID, $sessionID);
+  }
+  else {
+    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $sourceID)), 'error');
+  }
+}
+
+/**
+ * Function that request for data to a source adapter form certain Geopoint and Radius
+ *
+ * @param $lon
+ * @param $lat
+ * @param $radius
+ * @param $lan
+ * @param $categoriesID
+ * @param $sourceID
+ * @param $maxRows
+ * @param $titleshrink
+ * @param $bodyshrink
+ * @param $linkshrink
+ * @param $maxRequestRows
+ * @param $sessionID
+ *
+ * @return Parsed response from the specific source adapter
+ */
+function whami_get_information_geopoint_radius($lat, $lon, $radius, $lan, $categoriesID, $sourceID, $maxRows, $titleshrink, $bodyshrink, $linkshrink, $maxRequestRows, $sessionID) {
+  if (module_exists('whami_source_adapter_' . $sourceID)) {
+    $function = 'whami_get_information_geopoint_radius_' . $sourceID;
+    $result = $function($lat, $lon, $radius, $lan, $maxRequestRows);
+    return whami_source_adapter_parse_response($result, $maxRows, $titleshrink, $bodyshrink, $linkshrink, $categoriesID, $sourceID, $sessionID);
+  }
+  else {
+    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $sourceID)), 'error');
+  }
+}
+
+/**
+ *  Function that parses the results from an specific source adapter to the main format
+ *
+ * @param unknown_type $result
+ * @param unknown_type $maxRows
+ * @param unknown_type $titleshrink
+ * @param unknown_type $bodyshrink
+ * @param unknown_type $linkshrink
+ * @param unknown_type $sesionID
+ *
+ * @return Parsed response for the Source Adapter
+ */
+function whami_source_adapter_parse_response($result, $maxRows, $titleshrink, $bodyshrink, $linkshrink, $categoriesID, $sourceID, $sesionID) {
+  $result = array_slice($result, 0, $maxRows);
+
+  foreach ($result as $key => $value) {
+    $result[$key]['sourceID'] = $sourceID;
+    $result[$key]['categoryID'] = $categoriesID;
+     
+    $result[$key]['title'] = substr($result[$key]['title'], 0, $titleshrink);
+    $result[$key]['body'] = substr($result[$key]['body'], 0, $bodyshrink);
+    $result[$key]['url'] = substr($result[$key]['url'], 0, $linkshrink);
+    $result[$key]['sid'] = $sesionID;
+
+    //TODO: whamifix
+    $result[$key]['url_hash'] = hash("md5", $result[$key]['full_url']);
+  }
+
+  return $result;
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function whami_source_adapter_menu() {
+  $items = array();
+
+  $items['whami/SourceAdapter'] = array(
+    'title' => 'Whami SourceAdapter',
+    'page callback' => 'whami_source_adapter_demo',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
+  
+  return $items;
+}
+
+/**
+ * Function that implements a demo for the Source Adapter
+ */
+function whami_source_adapter_demo() {
+  $sessionID = check_plain($_COOKIE[session_name()]);
+
+  // bbox -> "Ibiza"
+  //  	'north' => 29,
+  //  	'east' => -13,
+  //    'south' => 27,
+  //    'west' => -18
+  // bbox -> Dublin
+  //  	'north' => 53.419354,
+  //  	'east' => -5.975189,
+  //    'south' => 53.206855,
+  //    'west' => -6.432495
+  // bbox -> Australia
+  //	'north' => -31.278551,
+  //	'south' => -45.79817,
+  //	'east' => 154.248047,
+  //	'west' => 134.121094
+  $a = whami_get_information_bounding_box(array(
+    'north' => -31.278551, 
+    'south' => -45.79817, 
+    'east' => 154.248047, 
+    'west' => 134.121094
+  ), 'de', array("03"), 'panoramio', 3, 10, 10, 10, 20, $sessionID);
+  $b = whami_get_information_geopoint_radius(40, -3, 10, 'es', array("03"), 'panoramio', 3, 10, 10, 10, 20, $sessionID);
+
+  $table_a = '<h2>whami_get_information_bounding_box</h2><br /> results for: whami_get_information_bounding_box(NULL, \'es\', array("01"), \'wikipedia\', 3, 10, 10, 10, 20)';
+  $table_a .= theme_table(array_keys($a[0]), $a);
+
+  $table_b = '<h2>whami_get_information_geopoint_radius</h2><br /> results for: whami_get_information_geopoint_radius(40,-3,10,\'es\',array("01"),\'wikipedia\', 3, 10, 10 , 10 , 20)';
+  $table_b .= theme_table(array_keys($b[0]), $b);
+
+  return $table_a . $table_b; 
+}
+
+/**
+ *  This function converts a bounding box of geographic data into a geographic
+ *  point and a radius that nears that bounding box
+ *  @param $north The longitude of the "upper/right" geopoint
+ *  @param $east The latitude of the "upper/right" geopoint
+ *  @param $south The longitude of the "lower/left" geopoint
+ *  @param $west The latitude of the "lower/left" geopoint
+ *  @return A one-dimensional array with the lon of the geopoint, the lat of the geopoint and the radius
+ */
+function convert_bounding_box_geopoint_radius($north, $east, $south, $west) {
+  $distTwoLon = 40075.017 / 360;
+  $distTwoLat = 20003.9315 / 180;
+
+  $distLon = 0;
+  $zLon = 0;
+  if ( $east >= $west ) {
+    $distLon = ($east - $west) * $distTwoLon;
+    $zLon = 0.5 * ($east + $west);
+  }
+  else {
+    $distLon = (360 + $east - $west) * $distTowLon;
+    $zLon = 180 + (0.5 * ($east + $west));
+  }
+
+  if ( $zLon > 180 ) {
+    $zLon = $zLon - 360;
+  }
+
+  $distLat = ($north - $south) * $distTwoLat;
+  $zLat = 0.5 * ($north + $south);
+
+  $radius = 0.5 * sqrt(($distLon * $distLon) + ($distLat * $distLat));
+
+  return array('lon' => $zLon, 'lat' => $zLat, 'radius' => $radius);
+}
+
+/**
+ *  This function converts a "geographic circle" into a bounding box denoted by 2 geopoints
+ *  @param $zLon The longitude of the geographic point
+ *  @param $zLat The latitude of the geographic point
+ *  @param $radius The radius of the geographic circle
+ *  @return A one-dimensional array denoting two geograpic points which combined form a geographic bounding box
+ */
+function convert_geopoint_radius_bounding_box($zLon, $zLat, $radius) {
+  $earthLength = 40075.017;
+  $earthBreadth = 20003.9315;
+
+  $length = ($radius * 360 / $earthLength);
+  $east = $zLon + $length;
+  $west = $zLon - $length;
+
+  $east = $east <= 180 ? $east : $east - 360;
+  $west = $west >= -180 ? $west : $west + 360;
+
+  $breadth = ($radius * 180 / $earthBreadth);
+  $north = $zLat + $breadth;
+  $south = $zLat - $breadth;
+
+  $north = $north > 90 ? 90 : $north;
+  $south = $south < -90 ? -90 : $south;
+
+  return array('north' => $north, 'east' => $east, 'south' => $south, 'west' => $west);
+}

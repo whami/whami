@@ -1,0 +1,139 @@
+<?php
+
+module_load_include('inc', 'whami_source_adapter');
+module_load_include('inc', 'whami_source_adapter_panoramio');
+
+/**
+ *
+ * Implementation of hook_block()
+ * @param unknown_type $op
+ * @param unknown_type $delta
+ * @param unknown_type $edit
+ */
+function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      return array(array('info' => 'Whami Source Adapter: Panoramio', 'cache' => BLOCK_CACHE_PER_PAGE));
+
+    case 'configure':
+      return _whami_source_adapter_block_config_form('panoramio', $delta);
+
+    case 'save':
+      _whami_source_adapter_block_config_save('panoramio', $delta, $edit);
+      break;
+
+    case 'view':
+      $block = array();
+      // Only show on node view page
+      $nid = check_plain(arg(1));
+
+      if (strcmp(arg(0), 'node') == 0 && is_numeric($nid) && !arg(2)) {
+        global $language;
+        $langcode = $language->language;
+
+        $place = menu_get_object();
+
+        if ($place !== FALSE && variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'active'), 0) > 0) {
+          $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'geofield'), '');
+          if (strlen($geo_field_name)) {
+            $imgSize_preview = 'square';
+            $imgSize_big = 'medium';
+            $radius = variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'radius'), 10);
+            $max_results = (int) variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'max_results'), 10);
+
+            $point = geo_value($place->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
+
+            $result = whami_get_information_geopoint_radius_panoramio($point['lat'], $point['lon'] , $radius, $langcode, $max_results, $imgSize_big);
+            $result_preview = whami_get_information_geopoint_radius_panoramio($point['lat'], $point['lon'], $radius, $langcode, $max_results, $imgSize_preview);
+            $result = whami_panoramio_merge_preview_pics($result, $result_preview, $imgSize_preview);
+
+            $block['subject'] = t('Panoramio pics around node');
+            $block['content'] = theme('whami_panoramio_table', $result, $imgSize_big, $imgSize_preview);
+          }
+        }
+      }
+
+      return $block;
+  }
+}
+
+/**
+ *
+ * Implementation of hook_theme
+ */
+function whami_source_adapter_panoramio_theme($existing, $type, $theme, $path) {
+  return array(
+    'whami_panoramio_table' => array(
+      'template' => 'whami_panoramio_table',
+      'arguments' => array('result' => array(), 'imgSize_big' => 'medium', 'imgSize_preview' => 'square'),
+    ),
+    'whami_panoramio_pic' => array(
+      'template' => 'whami_panoramio_pic',
+      'arguments' => array('link' => '', 'link_preview' => '', 'title' => '', 'pic_page_url' => '', 'owner_name' => '', 'owner_url' => ''),
+    ),
+  );
+}
+
+/**
+ *
+ * Implementation of template_preprocess_HOOK()
+ * @param unknown_type $variables
+ */
+function template_preprocess_whami_panoramio_table(&$variables) {
+  $variables['table_title'] = t('Pictures nearby from Panoramio');
+  $variables['panoramio_license'] = t('Photos provided by Panoramio are under the copyright of their owners.');
+
+  $logo = theme_image(drupal_get_path('module', 'whami_source_adapter_panoramio') . '/panoramio-logo.png');
+  $variables['panoramio_logo'] = $logo;
+
+  $result = $variables['result'];
+  $imgSize_big = $variables['imgSize_big'];
+  $imgSize_preview = $variables['imgSize_preview'];
+
+  if (!empty($result)) {
+    $panoramio_pics_table = array();
+    $panoramio_row = array();
+
+    foreach ($result as $value) {
+      $img_url = $value[$imgSize_big . '_url'];
+      $img_preview_url = $value[$imgSize_preview . '_url'];
+      $title = $value['title'];
+      $full_url = $value['full_url'];
+      $owner_name = $value['owner_name'];
+      $owner_url = $value['owner_url'];
+
+      if (count($panoramio_row) < 3) {
+        $panoramio_row[] = theme('whami_panoramio_pic', $img_url, $img_preview_url, $title, $full_url, $owner_name, $owner_url);
+      }
+      else {
+        $panoramio_pics_table[] = $panoramio_row;
+        $panoramio_row = array();
+        $panoramio_row[] = theme('whami_panoramio_pic', $img_url, $img_preview_url, $title, $full_url, $owner_name, $owner_url);
+      }
+    }
+
+    $panoramio_pics_table[] = $panoramio_row;
+  }
+
+  $variables['html_table'] = theme_table(NULL, $panoramio_pics_table, array("class" => "whamiPanoramioPicsTable"));
+}
+
+/**
+ *
+ * Implementation of template_preprocess_HOOK()
+ * @param unknown_type $variables
+ */
+function template_preprocess_whami_panoramio_pic(&$variables) {
+  $variables['panoramio_license'] = t('Photos provided by Panoramio are under the copyright of their owners.');
+
+  $logo = theme_image(drupal_get_path('module', 'whami_source_adapter_panoramio') . '/panoramio-logo.png');
+  $variables['panoramio_logo'] = $logo;
+
+  $title_link = l($variables['title'], $variables['pic_page_url'], array('_target' => 'blank', 'external' => TRUE));
+  $variables['title_link'] = $title_link;
+
+  $owner_link = t('Author: ') . l($variables['owner_name'], $variables['owner_url'], array('external' => TRUE));
+  $variables['owner_link'] = $owner_link;
+
+  $variables['title_encoded'] = htmlentities($logo . '<br />' . $title_link . '<br />' . $owner_link . '<br />' . $variables['panoramio_license']);
+}

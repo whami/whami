@@ -1,0 +1,97 @@
+<?php
+
+module_load_include('inc', 'whami_source_adapter');
+module_load_include('inc', 'whami_source_adapter_wikipedia');
+
+/**
+ *
+ * Implementation of hook_block()
+ * @param unknown_type $op
+ * @param unknown_type $delta
+ * @param unknown_type $edit
+ */
+function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      return array(array('info' => 'Whami Source Adapter: Wikipedia', 'cache' => BLOCK_CACHE_PER_PAGE));
+
+    case 'configure':
+      return _whami_source_adapter_block_config_form('wikipedia', $delta);
+
+    case 'save':
+      _whami_source_adapter_block_config_save('wikipedia', $delta, $edit);
+      break;
+
+    case 'view':
+      $block = array();
+
+      $nid = check_plain(arg(1));
+      if (strcmp(arg(0), 'node') == 0 && is_numeric($nid) && !arg(2)) {
+        $node = node_load($nid);
+        if ($node !== FALSE) {
+          $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'geofield'), '');
+          if (strlen($geo_field_name)) {
+            global $language;
+            $langcode = $language->language;
+
+            $point = geo_value($node->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
+            $max_results = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'max_results'), 10);
+            $radius = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'radius'), 10);
+
+            $wikipedia_data = whami_get_information_geopoint_radius_wikipedia($point['lat'], $point['lon'] , $radius, $langcode, $max_results);
+
+            $block['subject'] = t('Wikipedia');
+            $block['content'] = theme('whami_source_adapter_wikipedia_content', $wikipedia_data);
+          }
+        }
+      }
+
+      return $block;
+  }
+}
+
+/**
+ *
+ * Implementation of hook_theme
+ */
+function whami_source_adapter_wikipedia_theme($existing, $type, $theme, $path) {
+  return array(
+    'whami_source_adapter_wikipedia_content' => array(
+      'arguments' => array('wikipedia_data' => array()),
+      'template' => 'whami_source_adapter_wikipedia',
+    ),
+  );
+}
+
+/**
+ *
+ * Implementation of template_preprocess_HOOK()
+ * @param unknown_type $variables
+ */
+function template_preprocess_whami_source_adapter_wikipedia_content(&$variables) {
+  if (!empty($variables['wikipedia_data'])) {
+    $list_items = array();
+    $list_attributes = array('class' => 'whami-source-adapter-wikipedia-list', 'style' => 'list-style: none');
+
+    foreach ($variables['wikipedia_data'] as $key => $entry) {
+      $item_content = l($entry['title'], $entry['full_url']);
+
+      $logo_path = drupal_get_path('module', 'whami_source_adapter_wikipedia') . '/wikipedia-small-logo.png';
+      $logo_attributes = array('width' => '34px', 'height' => '34px', 'style' => 'float: right');
+      $item_content .= l(theme_image($logo_path, $entry['title'], $entry['title'], $logo_attributes), $entry['full_url'], array('html' => TRUE));
+
+      $item_content .= '<p>' . $entry['body'] . '</p>';
+
+      $list_items[] = array(
+        'data' => $item_content,
+        'class' => 'whami-source-adapter-wikipedia-item',
+        'id' => 'whami-source-adapter-wikipedia-item-' . $key,
+        'style' => 'list-style: none'
+      );
+
+      $variables['license'] = $entry['license'];
+    }
+
+    $variables['item_list'] = theme_item_list($list_items, NULL, 'ul', $list_attributes);
+  }
+}

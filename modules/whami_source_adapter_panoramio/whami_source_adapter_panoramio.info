@@ -1,0 +1,7 @@
+; $Id:$
+name = Whami Source Adapter - Panoramio
+description = Provides a Source Adapter for the Google Panoramio web service.
+core = 6.x
+version = 6.x-0.1
+package = Whami
+dependencies[] = whami_source_adapter
