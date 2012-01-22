@@ -2,5 +2,6 @@
 name = whami Source Adapter
 description = Provides a Source Adapter for the Whami project.
 core = 6.x
+version = 6.x-0.1
 package = whami
 dependencies[] = geo
