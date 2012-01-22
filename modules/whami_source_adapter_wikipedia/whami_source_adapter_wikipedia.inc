@@ -17,7 +17,7 @@
  */
 function whami_get_information_bounding_box_wikipedia($bbox, $lan, $max_request_rows) {
   $query = array('north' => $bbox['north'], 'south' => $bbox['south'], 'east' => $bbox['east'], 'west' => $bbox['west'], 'lang' => $lan, 'maxRows' => $max_request_rows);
-  $result = geonames_query('wikipediabbox', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'elevation')));
+  $result = geonames_query('wikipediaboundingbox', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'elevation')));
 
   $ret = array();
 
@@ -44,7 +44,7 @@ function whami_get_information_bounding_box_wikipedia($bbox, $lan, $max_request_
 function whami_get_information_geopoint_radius_wikipedia($lat, $lon, $radius, $lan, $max_request_rows) {
   $query = array('lat' => $lat, 'lng' => $lon, 'radius' => $radius, 'lang' => $lan, 'maxRows' => $max_request_rows);
 
-  $result = geonames_query('nearbywikipedia', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'distance', 'elevation')));
+  $result = geonames_query('findnearbywikipedia', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'distance', 'elevation')));
 
   $results = whami_source_adapter_wikipedia_return($result, $lan);
 
@@ -63,8 +63,9 @@ function whami_get_information_geopoint_radius_wikipedia($lat, $lon, $radius, $l
 function whami_source_adapter_wikipedia_return($result, $langcode) {
   $results = array();
 
-  foreach ($result->results as $key => $value) {
-    $results[] = array(
+  if (isset($result->results)) {
+    foreach ($result->results as $key => $value) {
+      $results[] = array(
       'categoryID' => '01',
       'title' => $value['title'],
       'body' => $value['summary'],
@@ -75,7 +76,8 @@ function whami_source_adapter_wikipedia_return($result, $langcode) {
       'elevation' => $value['elevation'],
       'distance' => isset($value['distance']) ? $value['distance'] : NULL,
       'license' => '<div class="whami_wiki_license">' . t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) . '</div>'
-    );
+      );
+    }
   }
 
   return $results;

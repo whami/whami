@@ -80,7 +80,6 @@ function whami_source_adapter_parse_response($result, $maxRows, $titleshrink, $b
     $result[$key]['url'] = substr($result[$key]['url'], 0, $linkshrink);
     $result[$key]['sid'] = $sesionID;
 
-    //TODO: whamifix
     $result[$key]['url_hash'] = hash("md5", $result[$key]['full_url']);
   }
 

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * 
+ *
  * A collection of functions which use Panoramio's API
  */
 
@@ -12,20 +12,21 @@
  * @param unknown_type $result
  */
 function whami_get_information_panoramio_return($result) {
-  foreach ($result as $key => $value) {
-    $img_attributes = array('width' => $result[$key]['width'], 'height' => $result[$key]['height']);
-    $img = theme_image($result[$key]['photo_file_url'], $result[$key]['title'], $result[$key]['title'], $img_attributes, FALSE);
+  if (isset($result->results)) {
+    foreach ($result as $key => $value) {
+      $img_attributes = array('width' => $result[$key]['width'], 'height' => $result[$key]['height']);
+      $img = theme_image($result[$key]['photo_file_url'], $result[$key]['title'], $result[$key]['title'], $img_attributes, FALSE);
 
-    $link = l($img, $result[$key]['full_url'], array('HTML' => TRUE, 'attributes' => array('target' => '_blank')));
-    $author_link = l(htmlentities($result[$key]['owner_name']), $result[$key]['owner_url'], array('attributes' => array('target' => '_blank')));
+      $link = l($img, $result[$key]['full_url'], array('HTML' => TRUE, 'attributes' => array('target' => '_blank')));
+      $author_link = l(htmlentities($result[$key]['owner_name']), $result[$key]['owner_url'], array('attributes' => array('target' => '_blank')));
 
-    $body = $link;
-    $body .= '<p>' . t('Author') . ': ' . $author_link . '</p>';
-    $body .= '<p>' . t('Photos provided by Panoramio are under the copyright of their owners.') . '</p>';
+      $body = $link;
+      $body .= '<p>' . t('Author') . ': ' . $author_link . '</p>';
+      $body .= '<p>' . t('Photos provided by Panoramio are under the copyright of their owners.') . '</p>';
 
-    $result[$key]['body'] = $body;
+      $result[$key]['body'] = $body;
+    }
   }
-
   return $result;
 }
 
@@ -126,9 +127,11 @@ function whami_get_information_geopoint_radius_panoramio($lat = 0, $lon = 0, $ra
  * @param unknown_type $imgSize_preview
  */
 function whami_panoramio_merge_preview_pics($result, $result_preview, $img_size_preview) {
-  foreach ($result as $key => $value) {
-    $result[$key][$img_size_preview . '_url'] = $result_preview[$key][$img_size_preview . '_url'];
-    // hash('md5', $result_preview[$key]['full_url'])
+  if (isset($result)) {
+    foreach ($result as $key => $value) {
+      $result[$key][$img_size_preview . '_url'] = $result_preview[$key][$img_size_preview . '_url'];
+      // hash('md5', $result_preview[$key]['full_url'])
+    }
   }
   return $result;
 }
