@@ -1,2 +1,2 @@
-<?php echo $item_list; ?>
+﻿<?php echo $item_list; ?>
 <?php echo $license; ?>
