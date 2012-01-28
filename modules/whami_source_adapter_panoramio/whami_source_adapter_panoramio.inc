@@ -11,7 +11,7 @@
  * Enter description here ...
  * @param unknown_type $result
  */
-function whami_get_information_panoramio_return($result) {
+function whami_source_adapter_panoramio_return($result) {
   if (isset($result->results)) {
     foreach ($result as $key => $value) {
       $img_attributes = array('width' => $result[$key]['width'], 'height' => $result[$key]['height']);
@@ -94,7 +94,7 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
         $results[$row['url_hash']] = $row;
       }
 
-      return whami_get_information_panoramio_return($results);
+      return whami_source_adapter_panoramio_return($results);
     }
   }
 
@@ -114,7 +114,7 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
 function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $radius = 5, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
   $results = array();
 
-  $bbox = convert_geopoint_radius_bounding_box($lon, $lat, $radius);
+  $bbox = whami_source_adapter_convert_geopoint_radius_bbox($lon, $lat, $radius);
 
   return whami_source_adapter_panoramio_bounding_box($bbox, $lan, $max_request_rows, $img_size);
 }
@@ -126,7 +126,7 @@ function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $rad
  * @param unknown_type $result_preview
  * @param unknown_type $imgSize_preview
  */
-function whami_panoramio_merge_preview_pics($result, $result_preview, $img_size_preview) {
+function whami_source_adapter_panoramio_merge_preview_pics($result, $result_preview, $img_size_preview) {
   if (isset($result)) {
     foreach ($result as $key => $value) {
       $result[$key][$img_size_preview . '_url'] = $result_preview[$key][$img_size_preview . '_url'];

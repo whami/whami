@@ -149,7 +149,7 @@ function whami_source_adapter_demo() {
  *  @param $west The latitude of the "lower/left" geopoint
  *  @return A one-dimensional array with the lon of the geopoint, the lat of the geopoint and the radius
  */
-function convert_bounding_box_geopoint_radius($north, $east, $south, $west) {
+function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south, $west) {
   $distTwoLon = 40075.017 / 360;
   $distTwoLat = 20003.9315 / 180;
 
@@ -183,7 +183,7 @@ function convert_bounding_box_geopoint_radius($north, $east, $south, $west) {
  *  @param $radius The radius of the geographic circle
  *  @return A one-dimensional array denoting two geograpic points which combined form a geographic bounding box
  */
-function convert_geopoint_radius_bounding_box($zLon, $zLat, $radius) {
+function whami_source_adapter_convert_geopoint_radius_bbox($zLon, $zLat, $radius) {
   $earthLength = 40075.017;
   $earthBreadth = 20003.9315;
 
