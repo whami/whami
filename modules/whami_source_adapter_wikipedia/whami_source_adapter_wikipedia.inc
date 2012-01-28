@@ -15,7 +15,7 @@
  *
  * @return The results of the geonames webservice request
  */
-function whami_get_information_bounding_box_wikipedia($bbox, $lan, $max_request_rows) {
+function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_rows) {
   $query = array('north' => $bbox['north'], 'south' => $bbox['south'], 'east' => $bbox['east'], 'west' => $bbox['west'], 'lang' => $lan, 'maxRows' => $max_request_rows);
   $result = geonames_query('wikipediaboundingbox', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'elevation')));
 
@@ -41,7 +41,7 @@ function whami_get_information_bounding_box_wikipedia($bbox, $lan, $max_request_
  *
  * @return The results of the geonames webservice request
  */
-function whami_get_information_geopoint_radius_wikipedia($lat, $lon, $radius, $lan, $max_request_rows) {
+function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $lan, $max_request_rows) {
   $query = array('lat' => $lat, 'lng' => $lon, 'radius' => $radius, 'lang' => $lan, 'maxRows' => $max_request_rows);
 
   $result = geonames_query('findnearbywikipedia', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'distance', 'elevation')));

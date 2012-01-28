@@ -38,7 +38,7 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
             $max_results = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'max_results'), 10);
             $radius = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'radius'), 10);
 
-            $wikipedia_data = whami_get_information_geopoint_radius_wikipedia($point['lat'], $point['lon'] , $radius, $langcode, $max_results);
+            $wikipedia_data = whami_source_adapter_wikipedia_geopoint_radius($point['lat'], $point['lon'] , $radius, $langcode, $max_results);
 
             $block['subject'] = t('Wikipedia');
             $block['content'] = theme('whami_source_adapter_wikipedia_content', $wikipedia_data);

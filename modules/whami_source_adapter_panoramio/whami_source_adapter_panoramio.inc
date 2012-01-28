@@ -38,7 +38,7 @@ function whami_get_information_panoramio_return($result) {
  * @param unknown_type $maxRequestRows
  * @param unknown_type $imgSize
  */
-function whami_get_information_bounding_box_panoramio($bbox = NULL, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
+function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
   $results = array();
 
   $panoramio_http_request = 'http://www.panoramio.com/map/get_panoramas.php?';
@@ -111,12 +111,12 @@ function whami_get_information_bounding_box_panoramio($bbox = NULL, $lan = "", $
  * @param unknown_type $maxRequestRows
  * @param unknown_type $imgSize
  */
-function whami_get_information_geopoint_radius_panoramio($lat = 0, $lon = 0, $radius = 5, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
+function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $radius = 5, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
   $results = array();
 
   $bbox = convert_geopoint_radius_bounding_box($lon, $lat, $radius);
 
-  return whami_get_information_bounding_box_panoramio($bbox, $lan, $max_request_rows, $img_size);
+  return whami_source_adapter_panoramio_bounding_box($bbox, $lan, $max_request_rows, $img_size);
 }
 
 /**
