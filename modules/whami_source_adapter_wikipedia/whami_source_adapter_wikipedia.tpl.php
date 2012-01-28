@@ -1,2 +1,2 @@
-<?php print $item_list; ?>
-<?php print $license; ?>
+<?php echo $item_list; ?>
+<?php echo $license; ?>
