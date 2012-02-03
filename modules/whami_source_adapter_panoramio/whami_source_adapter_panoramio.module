@@ -43,7 +43,7 @@ function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = 
 
             $point = geo_value($place->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
 
-            $result = whami_source_adapter_panoramio_geopoint_radius($point['lat'], $point['lon'] , $radius, $langcode, $max_results, $imgSize_big);
+            $result = whami_source_adapter_panoramio_geopoint_radius($point['lat'], $point['lon'], $radius, $langcode, $max_results, $imgSize_big);
             $result_preview = whami_source_adapter_panoramio_geopoint_radius($point['lat'], $point['lon'], $radius, $langcode, $max_results, $imgSize_preview);
             $result = whami_source_adapter_panoramio_merge_preview_pics($result, $result_preview, $imgSize_preview);
 
