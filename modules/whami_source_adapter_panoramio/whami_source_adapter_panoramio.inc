@@ -58,7 +58,7 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
   $panoramio_http_query['maxx'] = $bbox['east'];
   $panoramio_http_query['maxy'] = $bbox['north'];
 
-  // Make sure the HTTP request is valid and arguments combined with a '&';
+  // Make sure the HTTP request is valid and arguments combined with a '&'
   $panoramio_http_request .= http_build_query($panoramio_http_query, '', '&');
 
   // Commence the HTTP request towards Panoramio.
@@ -84,7 +84,7 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
         $row['latitude'] = isset($photo->latitude) ? $photo->latitude : 0;
         $row['longitude'] = isset($photo->longitude) ? $photo->longitude : 0;
 
-        // Additional fields, not covered by Data Staging API-
+        // Additional fields, not covered by Data Staging API
         $row[$img_size . '_url'] = isset($photo->photo_file_url) ? $photo->photo_file_url : '';
         $row['photo_file_url'] = isset($photo->photo_file_url) ? $photo->photo_file_url : '';
 
@@ -129,7 +129,8 @@ function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $rad
 }
 
 /**
- * Merge the two resultsets for the Panoramio pics and their coresponding preview thumbnails
+ * Merge the two resultsets for the Panoramio pics
+ * and their coresponding preview thumbnails
  *
  * @param array $result
  *   result
