@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_uninstall()
+ * Implements hook_uninstall().
  */
 function whami_source_adapter_panoramio_uninstall() {
   db_query('DELETE FROM {variable} WHERE name LIKE "whami_source_adapter_panoramio%"');
