@@ -84,7 +84,7 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
         $row['latitude'] = isset($photo->latitude) ? $photo->latitude : 0;
         $row['longitude'] = isset($photo->longitude) ? $photo->longitude : 0;
 
-        // Additional fields, not covered by Data Staging API
+        // Additional fields, not covered by Data Staging API.
         $row[$img_size . '_url'] = isset($photo->photo_file_url) ? $photo->photo_file_url : '';
         $row['photo_file_url'] = isset($photo->photo_file_url) ? $photo->photo_file_url : '';
 
