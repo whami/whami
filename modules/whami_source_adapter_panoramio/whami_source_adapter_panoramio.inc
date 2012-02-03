@@ -58,10 +58,10 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
   $panoramio_http_query['maxx'] = $bbox['east'];
   $panoramio_http_query['maxy'] = $bbox['north'];
 
-  // make sure the HTTP request is valid and arguments combined with a '&'
+  //Make sure the HTTP request is valid and arguments combined with a '&'
   $panoramio_http_request .= http_build_query($panoramio_http_query, '', '&');
 
-  // commence the HTTP request towards Google
+  //Commence the HTTP request towards Panoramio
   $panoramio_http_reply = drupal_http_request($panoramio_http_request);
 
   if (!strcmp($panoramio_http_reply->status_message, 'OK') && function_exists('json_decode')) {
@@ -84,7 +84,7 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
         $row['latitude'] = isset($photo->latitude) ? $photo->latitude : 0;
         $row['longitude'] = isset($photo->longitude) ? $photo->longitude : 0;
 
-        // Additional fields, not covered by Data Staging API
+        //Additional fields, not covered by Data Staging API
         $row[$img_size . '_url'] = isset($photo->photo_file_url) ? $photo->photo_file_url : '';
         $row['photo_file_url'] = isset($photo->photo_file_url) ? $photo->photo_file_url : '';
 
@@ -135,7 +135,7 @@ function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $rad
  *   result
  * @param string $result_preview
  *   result_preview
- * @param string $imgSize_preview
+ * @param string $img_size_preview
  *   imgSize_preview
  */
 function whami_source_adapter_panoramio_merge_preview_pics($result, $result_preview, $img_size_preview) {
