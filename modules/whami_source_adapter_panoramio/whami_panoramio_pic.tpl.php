@@ -1,7 +1,6 @@
 <?php
 /**
  * @file
- *
  * Themable output of Panoramio pic
  */
 ?>
