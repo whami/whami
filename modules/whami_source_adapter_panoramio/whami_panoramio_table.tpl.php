@@ -1,3 +1,8 @@
+/**
+ * @file
+ *
+ * Themable output of table of Panoramio pics
+ */
 <div align="center" id='whamiPanoramioPicsAround'>
   <p id='whamiPanoramioTitle'><?php print $table_title; ?></p>
   <?php echo $html_table; ?>
