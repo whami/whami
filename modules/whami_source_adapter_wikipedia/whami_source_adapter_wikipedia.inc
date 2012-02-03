@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * A collection of functions to enable the usage of the GeoNames: Wikipedia service
@@ -7,11 +6,13 @@
 
 /**
  * Function that extracts information of the geonames service from a given Bounding Box
- * @param unknown_type $bbox
- * @param unknown_type $lan
- * @param unknown_type $categoriesID
- * @param unknown_type $sourceID
- * @param unknown_type $max_request_rows
+ *
+ * @param array $bbox
+ *   Bounding box
+ * @param string $lan
+ *   Language
+ * @param int $max_request_rows
+ *   Maximum rows to request
  *
  * @return The results of the geonames webservice request
  */
@@ -31,13 +32,16 @@ function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_r
 /**
  * Function that extracts information of the geonames service from a given geopoint and radius
  *
- * @param unknown_type $lat
- * @param unknown_type $lon
- * @param unknown_type $radius
- * @param unknown_type $lan
- * @param unknown_type $categoriesID
- * @param unknown_type $sourceID
- * @param unknown_type $max_request_rows
+ * @param double $lat
+ *   Latitude
+ * @param double $lon
+ *   Longitude
+ * @param int $radius
+ *   Radius
+ * @param string $lan
+ *   Language
+ * @param int $max_request_rows
+ *   Maximum rows to request
  *
  * @return The results of the geonames webservice request
  */
@@ -54,12 +58,13 @@ function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $la
 /**
  * Function that adapts the result of the geonames websrvice to the standard Source Adapter format
  *
- * @param unknown_type $result
- * @param unknown_type $sourceID
+ * @param array $result
+ *   result
+ * @param string $langcode
+ *  Languagecode
  *
  * @return The parsed geonames webservice response
  */
-
 function whami_source_adapter_wikipedia_return($result, $langcode) {
   $results = array();
 
