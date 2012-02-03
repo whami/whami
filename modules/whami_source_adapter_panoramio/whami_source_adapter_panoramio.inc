@@ -5,9 +5,9 @@
  */
 
 /**
- * Parse the resultset and
+ * Parse the resultset
  *
- * @param $result
+ * @param $result result
  */
 function whami_source_adapter_panoramio_return($result) {
   if (isset($result->results)) {
