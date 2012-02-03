@@ -3,16 +3,16 @@
 /**
  * Function that request for data to a source adapter form certain Bounding Box
  *
- * @param $bbox
- * @param $lan
- * @param $categoriesID
- * @param $sourceID
- * @param $maxRows
- * @param $titleshrink
- * @param $bodyshrink
- * @param $linkshrink
- * @param $maxRequestRows
- * @param $sessionID
+ * @param $bbox bounding box
+ * @param $lan language
+ * @param $categoriesID categories
+ * @param $sourceID source id
+ * @param $maxRows maximum rows to return
+ * @param $titleshrink titleshrink
+ * @param $bodyshrink titleshrink
+ * @param $linkshrink titleshrink
+ * @param $maxRequestRows maximum rows to request
+ * @param $sessionID session id
  *
  * @return Parsed response from the specific source adapter
  */
@@ -30,18 +30,18 @@ function whami_source_adapter_bounding_box($bbox, $lan, $categoriesID, $sourceID
 /**
  * Function that request for data to a source adapter form certain Geopoint and Radius
  *
- * @param $lon
- * @param $lat
- * @param $radius
- * @param $lan
- * @param $categoriesID
- * @param $sourceID
- * @param $maxRows
- * @param $titleshrink
- * @param $bodyshrink
- * @param $linkshrink
- * @param $maxRequestRows
- * @param $sessionID
+ * @param $lon longitude
+ * @param $lat latitude
+ * @param $radius radius
+ * @param $lan language
+ * @param $categoriesID categories
+ * @param $sourceID source id
+ * @param $maxRows maximum rows to return
+ * @param $titleshrink titleshrink
+ * @param $bodyshrink bodyshrink
+ * @param $linkshrink linkshrink
+ * @param $maxRequestRows maximum rows to request
+ * @param $sessionID session id
  *
  * @return Parsed response from the specific source adapter
  */
@@ -59,12 +59,12 @@ function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $lan, $catego
 /**
  *  Function that parses the results from an specific source adapter to the main format
  *
- * @param unknown_type $result
- * @param unknown_type $maxRows
- * @param unknown_type $titleshrink
- * @param unknown_type $bodyshrink
- * @param unknown_type $linkshrink
- * @param unknown_type $sesionID
+ * @param $result result
+ * @param $maxRows maximum rows
+ * @param $titleshrink titleshrink
+ * @param $bodyshrink bodyshrink
+ * @param $linkshrink linkshrink
+ * @param $sesionID sesion id
  *
  * @return Parsed response for the Source Adapter
  */
