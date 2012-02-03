@@ -6,7 +6,6 @@
 */
 
 /**
-*
 * Implementation of hook_uninstall()
 */
 function whami_source_adapter_panoramio_uninstall() {

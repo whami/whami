@@ -16,7 +16,7 @@
 function _whami_source_adapter_conf_variable_name($source_id, $block_name, $option_name, $suffix = '') {
   $ret = 'whami_source_adapter_' . $source_id . '_block_' . $block_name . '_' . $option_name;
 
-  return strlen($suffix) ? $ret . '_' . $suffix : $ret;
+  return drupal_strlen($suffix) ? $ret . '_' . $suffix : $ret;
 }
 
 /**
@@ -28,7 +28,7 @@ function _whami_source_adapter_conf_variable_name($source_id, $block_name, $opti
 function _whami_source_adapter_block_config_form($source_id, $delta) {
   $form = array();
 
-  if (strlen($source_id) && strlen($delta) && module_exists('content') && function_exists('content_types')) {
+  if (drupal_strlen($source_id) && drupal_strlen($delta) && module_exists('content') && function_exists('content_types')) {
     $types = content_types();
     if (!empty($types)) {
       $form['whami_source_adapter_' . $source_id] = array(

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  *
@@ -7,9 +6,8 @@
  */
 
 /**
- *
- * Enter description here ...
- * @param unknown_type $result
+ * Parse the resultset and
+ * @param $result
  */
 function whami_source_adapter_panoramio_return($result) {
   if (isset($result->results)) {
@@ -31,12 +29,11 @@ function whami_source_adapter_panoramio_return($result) {
 }
 
 /**
- *
- * Enter description here ...
+ * Get Panoramio pics within an bounding box
  * @param unknown_type $bbox
  * @param unknown_type $lan
- * @param unknown_type $maxRequestRows
- * @param unknown_type $imgSize
+ * @param unknown_type $max_request_rows
+ * @param unknown_type $img_size
  */
 function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
   $results = array();
@@ -102,8 +99,7 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
 }
 
 /**
- *
- * Enter description here ...
+ * Get Panoramio pics within a radius of a point on the globe
  * @param unknown_type $lat
  * @param unknown_type $lon
  * @param unknown_type $radius
@@ -120,8 +116,7 @@ function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $rad
 }
 
 /**
- *
- * Enter description here ...
+ * Merge the two resultsets for the Panoramio pics and their coresponding preview thumbnails
  * @param unknown_type $result
  * @param unknown_type $result_preview
  * @param unknown_type $imgSize_preview
