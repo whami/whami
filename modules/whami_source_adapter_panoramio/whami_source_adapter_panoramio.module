@@ -9,10 +9,6 @@ module_load_include('inc', 'whami_source_adapter_panoramio');
 
 /**
  * Implements hook_block().
- *
- * @param $op
- * @param $delta
- * @param $edit
  */
 function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
@@ -79,8 +75,6 @@ function whami_source_adapter_panoramio_theme($existing, $type, $theme, $path) {
 
 /**
  * Implements template_preprocess_HOOK().
- *
- * @param $variables
  */
 function template_preprocess_whami_panoramio_table(&$variables) {
   $variables['table_title'] = t('Pictures nearby from Panoramio');
@@ -123,8 +117,6 @@ function template_preprocess_whami_panoramio_table(&$variables) {
 
 /**
  * Implements template_preprocess_HOOK().
- *
- * @param unknown_type $variables
  */
 function template_preprocess_whami_panoramio_pic(&$variables) {
   $variables['panoramio_license'] = t('Photos provided by Panoramio are under the copyright of their owners.');
