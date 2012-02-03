@@ -1,14 +1,18 @@
 <?php
+/**
+ * @file
+ * whami Source Adapter Panoramio module
+ */
 
 module_load_include('inc', 'whami_source_adapter');
 module_load_include('inc', 'whami_source_adapter_panoramio');
 
 /**
+ * Implements hook_block().
  *
- * Implementation of hook_block()
- * @param unknown_type $op
- * @param unknown_type $delta
- * @param unknown_type $edit
+ * @param $op
+ * @param $delta
+ * @param $edit
  */
 function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
@@ -24,7 +28,7 @@ function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = 
 
     case 'view':
       $block = array();
-      // Only show on node view page
+      // Only show on node view page.
       $nid = check_plain(arg(1));
 
       if (strcmp(arg(0), 'node') == 0 && is_numeric($nid) && !arg(2)) {
@@ -58,8 +62,7 @@ function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = 
 }
 
 /**
- *
- * Implementation of hook_theme
+ * Implements hook_theme().
  */
 function whami_source_adapter_panoramio_theme($existing, $type, $theme, $path) {
   return array(
@@ -75,9 +78,9 @@ function whami_source_adapter_panoramio_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements template_preprocess_HOOK().
  *
- * Implementation of template_preprocess_HOOK()
- * @param unknown_type $variables
+ * @param $variables
  */
 function template_preprocess_whami_panoramio_table(&$variables) {
   $variables['table_title'] = t('Pictures nearby from Panoramio');
@@ -119,8 +122,8 @@ function template_preprocess_whami_panoramio_table(&$variables) {
 }
 
 /**
+ * Implements template_preprocess_HOOK().
  *
- * Implementation of template_preprocess_HOOK()
  * @param unknown_type $variables
  */
 function template_preprocess_whami_panoramio_pic(&$variables) {
