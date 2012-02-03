@@ -7,7 +7,8 @@
 /**
  * Parse the resultset
  *
- * @param $result result
+ * @param array $result
+ *      result
  */
 function whami_source_adapter_panoramio_return($result) {
   if (isset($result->results)) {
@@ -31,10 +32,14 @@ function whami_source_adapter_panoramio_return($result) {
 /**
  * Get Panoramio pics within an bounding box
  *
- * @param $bbox bounding box
- * @param $lan language
- * @param $max_request_rows maximum rows to request
- * @param $img_size image size to request as defined by the Panoramio API
+ * @param array $bbox
+ *      bounding box
+ * @param string $lan
+ *      language
+ * @param int $max_request_rows
+ *      maximum rows to request
+ * @param string $img_size
+ *      image size to request as defined by the Panoramio API
  */
 function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
   $results = array();
@@ -102,12 +107,18 @@ function whami_source_adapter_panoramio_bounding_box($bbox = NULL, $lan = "", $m
 /**
  * Get Panoramio pics within a radius of a point on the globe
  *
- * @param $lat latitude
- * @param $lon longitude
- * @param $radius radius
- * @param $lan language
- * @param $max_request_rows maximum rows to request
- * @param $img_size image size to request as defined by the Panoramio API
+ * @param int $lat
+ *      latitude
+ * @param int $lon
+ *      longitude
+ * @param int $radius
+ *      radius
+ * @param string $lan
+ *      language
+ * @param int $max_request_rows
+ *      maximum rows to request
+ * @param string $img_size
+ *      image size to request as defined by the Panoramio API
  */
 function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $radius = 5, $lan = "", $max_request_rows = 20, $img_size = 'thumbnail') {
   $results = array();
@@ -120,9 +131,12 @@ function whami_source_adapter_panoramio_geopoint_radius($lat = 0, $lon = 0, $rad
 /**
  * Merge the two resultsets for the Panoramio pics and their coresponding preview thumbnails
  *
- * @param $result result
- * @param $result_preview result_preview
- * @param $imgSize_preview imgSize_preview
+ * @param array $result
+ *      result
+ * @param string $result_preview
+ *      result_preview
+ * @param string $imgSize_preview
+ *      imgSize_preview
  */
 function whami_source_adapter_panoramio_merge_preview_pics($result, $result_preview, $img_size_preview) {
   if (isset($result)) {
