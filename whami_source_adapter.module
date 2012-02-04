@@ -71,7 +71,8 @@ function whami_source_adapter_bounding_box($bbox, $lan, $categories_id, $source_
  * @param string $session_id
  *   session id
  *
- * @return Parsed response from the specific source adapter
+ * @return array
+ *   Parsed response from the specific source adapter
  */
 function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $lan, $categories_id, $source_id, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
   if (module_exists('whami_source_adapter_' . $source_id) && function_exists('whami_source_adapter_' . $source_id . '_geopoint_radius')) {
@@ -98,10 +99,13 @@ function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $lan, $catego
  *   bodyshrink
  * @param int $linkshrink
  *   linkshrink
+ * @param string $source_id
+ *   source id
  * @param string $session_id
  *   sesion id
  *
- * @return Parsed response for the Source Adapter
+ * @return array
+ *   Parsed response for the Source Adapter
  */
 function whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $source_id, $session_id) {
   $result = array_slice($result, 0, $max_rows);
@@ -143,21 +147,27 @@ function whami_source_adapter_menu() {
 function whami_source_adapter_demo() {
   $session_id = check_plain($_COOKIE[session_name()]);
 
-  // bbox -> "Ibiza"
-  //  	'north' => 29,
-  //  	'east' => -13,
-  //    'south' => 27,
-  //    'west' => -18
-  // bbox -> Dublin
-  //  	'north' => 53.419354,
-  //  	'east' => -5.975189,
-  //    'south' => 53.206855,
-  //    'west' => -6.432495
-  // bbox -> Australia
-  //	'north' => -31.278551,
-  //	'south' => -45.79817,
-  //	'east' => 154.248047,
-  //	'west' => 134.121094
+/* bbox -> "Ibiza"
+  	'north' => 29,
+  	'east' => -13,
+    'south' => 27,
+    'west' => -18
+*/
+
+/* bbox -> Dublin
+  	'north' => 53.419354,
+  	'east' => -5.975189,
+    'south' => 53.206855,
+    'west' => -6.432495
+*/
+
+/* bbox -> Australia
+	'north' => -31.278551,
+	'south' => -45.79817,
+	'east' => 154.248047,
+	'west' => 134.121094
+*/
+
   $a = whami_source_adapter_bounding_box(array(
     'north' => -31.278551,
     'south' => -45.79817,
