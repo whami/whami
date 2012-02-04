@@ -129,7 +129,7 @@ function whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function whami_source_adapter_menu() {
   $items = array();
@@ -175,7 +175,7 @@ function whami_source_adapter_demo() {
     'north' => -31.278551,
     'south' => -45.79817,
     'east' => 154.248047,
-    'west' => 134.121094
+    'west' => 134.121094,
   ), 'de', array("03"), 'panoramio', 3, 10, 10, 10, 20, $session_id);
   $b = whami_source_adapter_geopoint_radius(40, -3, 10, 'es', array("03"), 'panoramio', 3, 10, 10, 10, 20, $session_id);
 
