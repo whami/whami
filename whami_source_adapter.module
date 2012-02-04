@@ -5,7 +5,8 @@
  */
 
 /**
- * Function that request for data to a source adapter form certain Bounding Box
+ * Function that request for data to a source adapter
+ * from certain Bounding Box
  *
  * @param array $bbox
  *   bounding box
@@ -42,12 +43,13 @@ function whami_source_adapter_bounding_box($bbox, $lan, $categories_id, $source_
 }
 
 /**
- * Function that request for data to a source adapter form certain Geopoint and Radius
+ * Function that request for data to a source adapter
+ * from certain Geopoint and Radius
  *
- * @param double $lon
- *   longitude
  * @param double $lat
  *   latitude
+ * @param double $lon
+ *   longitude
  * @param int $radius
  *   radius
  * @param string $lan
@@ -174,7 +176,8 @@ function whami_source_adapter_demo() {
 }
 
 /**
- * This function converts a bounding box of geographic data into a geographic
+ * This function converts a bounding box
+ * of geographic data into a geographic
  * point and a radius that nears that bounding box
  *
  * @param double $north
