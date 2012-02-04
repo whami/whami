@@ -1,11 +1,13 @@
 <?php
 /**
  * @file
- * A collection of functions to enable the usage of the GeoNames: Wikipedia service
+ * A collection of functions to enable the usage of
+ * the GeoNames: Wikipedia service
  */
 
 /**
- * Function that extracts information of the geonames service from a given Bounding Box
+ * Function that extracts information of the geonames service
+ * from a given Bounding Box
  *
  * @param array $bbox
  *   Bounding box
@@ -13,7 +15,6 @@
  *   Language
  * @param int $max_request_rows
  *   Maximum rows to request
- *
  * @return The results of the geonames webservice request
  */
 function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_rows) {
@@ -30,7 +31,8 @@ function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_r
 }
 
 /**
- * Function that extracts information of the geonames service from a given geopoint and radius
+ * Function that extracts information of the geonames service
+ * from a given geopoint and radius
  *
  * @param double $lat
  *   Latitude
@@ -42,7 +44,6 @@ function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_r
  *   Language
  * @param int $max_request_rows
  *   Maximum rows to request
- *
  * @return The results of the geonames webservice request
  */
 function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $lan, $max_request_rows) {
@@ -56,13 +57,13 @@ function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $la
 }
 
 /**
- * Function that adapts the result of the geonames websrvice to the standard Source Adapter format
+ * Function that adapts the result of the geonames websrvice
+ * to the standard Source Adapter format
  *
  * @param array $result
  *   result
  * @param string $langcode
  *  Languagecode
- *
  * @return The parsed geonames webservice response
  */
 function whami_source_adapter_wikipedia_return($result, $langcode) {
@@ -80,7 +81,9 @@ function whami_source_adapter_wikipedia_return($result, $langcode) {
       'longitude' => $value['lng'],
       'elevation' => $value['elevation'],
       'distance' => isset($value['distance']) ? $value['distance'] : NULL,
-      'license' => '<div class="whami_wiki_license">' . t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) . '</div>'
+      'license' => '<div class="whami_wiki_license">' .
+                      t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) .
+                   '</div>',
       );
     }
   }
