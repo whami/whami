@@ -67,7 +67,7 @@ function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $la
  * @param array $result
  *   result
  * @param string $langcode
- *  Languagecode
+ *   Languagecode
  *
  * @return array
  *   The parsed geonames webservice response
@@ -78,18 +78,18 @@ function whami_source_adapter_wikipedia_return($result, $langcode) {
   if (isset($result->results)) {
     foreach ($result->results as $key => $value) {
       $results[] = array(
-      'categoryID' => '01',
-      'title' => $value['title'],
-      'body' => $value['summary'],
-      'url' => $value['wikipediaurl'],
-      'full_url' => $value['wikipediaurl'],
-      'latitude' => $value['lat'],
-      'longitude' => $value['lng'],
-      'elevation' => $value['elevation'],
-      'distance' => isset($value['distance']) ? $value['distance'] : NULL,
-      'license' => '<div class="whami_wiki_license">' .
+        'categoryID' => '01',
+        'title' => $value['title'],
+        'body' => $value['summary'],
+        'url' => $value['wikipediaurl'],
+        'full_url' => $value['wikipediaurl'],
+        'latitude' => $value['lat'],
+        'longitude' => $value['lng'],
+        'elevation' => $value['elevation'],
+        'distance' => isset($value['distance']) ? $value['distance'] : NULL,
+        'license' => '<div class="whami_wiki_license">' .
                       t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) .
-                   '</div>',
+                     '</div>',
       );
     }
   }
