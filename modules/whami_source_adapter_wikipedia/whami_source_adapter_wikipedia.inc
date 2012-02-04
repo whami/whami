@@ -87,9 +87,7 @@ function whami_source_adapter_wikipedia_return($result, $langcode) {
         'longitude' => $value['lng'],
         'elevation' => $value['elevation'],
         'distance' => isset($value['distance']) ? $value['distance'] : NULL,
-        'license' => '<div class="whami_wiki_license">' .
-                      t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) .
-                     '</div>',
+        'license' => '<div class="whami_wiki_license">' . t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) . '</div>',
       );
     }
   }
