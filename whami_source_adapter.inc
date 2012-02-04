@@ -1,17 +1,20 @@
 <?php
-
 /**
- * @file A collection of useful functions for the Whami Source Adapter and its
- * dependent modules
+ * @file
+ * Functions to manage the module configuration
  */
 
 /**
+ * Get the source-specific name of a configuration option
  *
- * Enter description here ...
- * @param unknown_type $source_id
- * @param unknown_type $block_name
- * @param unknown_type $option_name
- * @param unknown_type $suffix
+ * @param string $source_id
+ *   Source Adapter id
+ * @param string $block_name
+ *   Name of the rendered block
+ * @param string $option_name
+ *   Option
+ * @param string $suffix
+ *   Suffix
  */
 function _whami_source_adapter_conf_variable_name($source_id, $block_name, $option_name, $suffix = '') {
   $ret = 'whami_source_adapter_' . $source_id . '_block_' . $block_name . '_' . $option_name;
@@ -20,10 +23,12 @@ function _whami_source_adapter_conf_variable_name($source_id, $block_name, $opti
 }
 
 /**
+ * Generate the block config form
  *
- * Enter description here ...
- * @param unknown_type $source_id
- * @param unknown_type $delta
+ * @param string $source_id
+ *   Source Adapter id
+ * @param string $delta
+ *   Block delta
  */
 function _whami_source_adapter_block_config_form($source_id, $delta) {
   $form = array();
@@ -102,11 +107,14 @@ function _whami_source_adapter_block_config_form($source_id, $delta) {
 }
 
 /**
+ * Save the block config form
  *
- * Enter description here ...
- * @param unknown_type $source_id
- * @param unknown_type $delta
- * @param unknown_type $edit
+ * @param string $source_id
+ *   Source Adapter id
+ * @param string $delta
+ *   Block delta
+ * @param array $edit
+ *   Block edit
  */
 function _whami_source_adapter_block_config_save($source_id, $delta, $edit = array()) {
   if (!empty($edit['whami_source_adapter_' . $source_id])) {
