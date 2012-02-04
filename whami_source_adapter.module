@@ -202,7 +202,7 @@ function whami_source_adapter_demo() {
  * @param double $west
  *   The latitude of the "lower/left" geopoint
  *
- * @return
+ * @return array
  *   A one-dimensional array with the lon of the geopoint,
  *   the lat of the geopoint and the radius
  */
@@ -212,7 +212,7 @@ function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south
 
   $dist_lon = 0;
   $lat = 0;
-  if ( $east >= $west ) {
+  if ($east >= $west) {
     $dist_lon = ($east - $west) * $dist_two_lon;
     $lon = 0.5 * ($east + $west);
   }
@@ -221,7 +221,7 @@ function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south
     $lon = 180 + (0.5 * ($east + $west));
   }
 
-  if ( $lon > 180 ) {
+  if ($lon > 180) {
     $lon = $lon - 360;
   }
 
@@ -241,7 +241,7 @@ function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south
  *   The longitude of the geographic point
  * @param double $lat
  *   The latitude of the geographic point
- * @param $radius
+ * @param int $radius
  *   The radius of the geographic circle
  *
  * @return array
