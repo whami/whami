@@ -1,4 +1,4 @@
-name = whami Source Adapter - Panoramio
+name = Whami Source Adapter - Panoramio
 description = Provides a Source Adapter for the Google Panoramio web service.
 core = 6.x
 package = whami
