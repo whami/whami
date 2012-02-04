@@ -1,7 +1,8 @@
 <?php
 /**
  * @file
- * Install, update and uninstall functions for whami_Source_Adapter module.
+ * Install, update and uninstall functions for
+ * whami_source_adapter_panoramio module.
  */
 
 /**
