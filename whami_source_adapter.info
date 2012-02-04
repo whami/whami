@@ -1,8 +1,7 @@
-﻿; Whami Source Adapter
-name = "Whami Source Adapter"
-description = Provides a Source Adapter for the whami project.
+﻿; whami Source Adapter
+name = whami Source Adapter
+description = Basic functionality for whami Source Adapter adapters.
 core = 6.x
 package = whami
-project = "whami_source_adapter"
 dependencies[] = geo
 dependencies[] = cck
