@@ -1,14 +1,14 @@
 <?php
+/**
+ * @file
+ * whami Source Adapter Wikipedia module
+ */
 
 module_load_include('inc', 'whami_source_adapter');
 module_load_include('inc', 'whami_source_adapter_wikipedia');
 
 /**
- *
- * Implementation of hook_block()
- * @param unknown_type $op
- * @param unknown_type $delta
- * @param unknown_type $edit
+ * Implements hook_block().
  */
 function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
@@ -51,8 +51,7 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
 }
 
 /**
- *
- * Implementation of hook_theme
+ * Implements hook_theme.
  */
 function whami_source_adapter_wikipedia_theme($existing, $type, $theme, $path) {
   return array(
@@ -64,9 +63,7 @@ function whami_source_adapter_wikipedia_theme($existing, $type, $theme, $path) {
 }
 
 /**
- *
- * Implementation of template_preprocess_HOOK()
- * @param unknown_type $variables
+ * Implements template_preprocess_HOOK().
  */
 function template_preprocess_whami_source_adapter_wikipedia_content(&$variables) {
   if (!empty($variables['wikipedia_data'])) {

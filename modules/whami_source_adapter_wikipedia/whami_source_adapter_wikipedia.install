@@ -6,7 +6,6 @@
  */
 
 /**
- *
  * Implements hook_uninstall().
  */
 function whami_source_adapter_wikipedia_uninstall() {
