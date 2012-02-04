@@ -15,7 +15,9 @@
  *   Language
  * @param int $max_request_rows
  *   Maximum rows to request
- * @return The results of the geonames webservice request
+ *
+ * @return array
+ *   The results of the geonames webservice request
  */
 function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_rows) {
   $query = array('north' => $bbox['north'], 'south' => $bbox['south'], 'east' => $bbox['east'], 'west' => $bbox['west'], 'lang' => $lan, 'maxRows' => $max_request_rows);
@@ -44,7 +46,9 @@ function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_r
  *   Language
  * @param int $max_request_rows
  *   Maximum rows to request
- * @return The results of the geonames webservice request
+ *
+ * @return array
+ *   The results of the geonames webservice request
  */
 function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $lan, $max_request_rows) {
   $query = array('lat' => $lat, 'lng' => $lon, 'radius' => $radius, 'lang' => $lan, 'maxRows' => $max_request_rows);
@@ -64,7 +68,9 @@ function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $la
  *   result
  * @param string $langcode
  *  Languagecode
- * @return The parsed geonames webservice response
+ *
+ * @return array
+ *   The parsed geonames webservice response
  */
 function whami_source_adapter_wikipedia_return($result, $langcode) {
   $results = array();
