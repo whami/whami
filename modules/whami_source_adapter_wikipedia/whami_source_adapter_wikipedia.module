@@ -51,7 +51,7 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
 }
 
 /**
- * Implements hook_theme.
+ * Implements hook_theme().
  */
 function whami_source_adapter_wikipedia_theme($existing, $type, $theme, $path) {
   return array(
@@ -83,7 +83,7 @@ function template_preprocess_whami_source_adapter_wikipedia_content(&$variables)
         'data' => $item_content,
         'class' => 'whami-source-adapter-wikipedia-item',
         'id' => 'whami-source-adapter-wikipedia-item-' . $key,
-        'style' => 'list-style: none'
+        'style' => 'list-style: none',
       );
 
       $variables['license'] = $entry['license'];
