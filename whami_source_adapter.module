@@ -13,7 +13,7 @@
  *   language
  * @param array $categories_id
  *   categories
- * @param string $sourceID
+ * @param string $source_id
  *   source id
  * @param int $max_rows
  *   maximum rows to return
@@ -30,14 +30,14 @@
  *
  * @return Parsed response from the specific source adapter
  */
-function whami_source_adapter_bounding_box($bbox, $lan, $categories_id, $sourceID, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
-  if (module_exists('whami_source_adapter_' . $sourceID) && function_exists('whami_source_adapter_' . $sourceID . '_bounding_box')) {
-    $function = 'whami_source_adapter_' . $sourceID . '_bounding_box';
+function whami_source_adapter_bounding_box($bbox, $lan, $categories_id, $source_id, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
+  if (module_exists('whami_source_adapter_' . $source_id) && function_exists('whami_source_adapter_' . $source_id . '_bounding_box')) {
+    $function = 'whami_source_adapter_' . $source_id . '_bounding_box';
     $result = $function($bbox, $lan, $max_request_rows);
-    return whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $sourceID, $session_id);
+    return whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $source_id, $session_id);
   }
   else {
-    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $sourceID)), 'error');
+    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
   }
 }
 
@@ -54,7 +54,7 @@ function whami_source_adapter_bounding_box($bbox, $lan, $categories_id, $sourceI
  *   language
  * @param array $categories_id
  *   categories
- * @param string $sourceID
+ * @param string $source_id
  *   source id
  * @param int $max_rows
  *   maximum rows to return
@@ -71,40 +71,47 @@ function whami_source_adapter_bounding_box($bbox, $lan, $categories_id, $sourceI
  *
  * @return Parsed response from the specific source adapter
  */
-function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $lan, $categories_id, $sourceID, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
-  if (module_exists('whami_source_adapter_' . $sourceID) && function_exists('whami_source_adapter_' . $sourceID . '_geopoint_radius')) {
-    $function = 'whami_source_adapter_' . $sourceID . '_geopoint_radius';
+function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $lan, $categories_id, $source_id, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
+  if (module_exists('whami_source_adapter_' . $source_id) && function_exists('whami_source_adapter_' . $source_id . '_geopoint_radius')) {
+    $function = 'whami_source_adapter_' . $source_id . '_geopoint_radius';
     $result = $function($lat, $lon, $radius, $lan, $max_request_rows);
-    return whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $sourceID, $session_id);
+    return whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $source_id, $session_id);
   }
   else {
-    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $sourceID)), 'error');
+    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
   }
 }
 
 /**
- *  Function that parses the results from an specific source adapter to the main format
+ *  Function that parses the results from an specific source adapter
+ *  to the main format
  *
- * @param $result result
- * @param $max_rows maximum rows
- * @param $titleshrink titleshrink
- * @param $bodyshrink bodyshrink
- * @param $linkshrink linkshrink
- * @param $sesionID sesion id
+ * @param array $result
+ *   result
+ * @param int $max_rows
+ *   maximum rows
+ * @param int $titleshrink
+ *   titleshrink
+ * @param int $bodyshrink
+ *   bodyshrink
+ * @param int $linkshrink
+ *   linkshrink
+ * @param string $session_id
+ *   sesion id
  *
  * @return Parsed response for the Source Adapter
  */
-function whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $sourceID, $sesionID) {
+function whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $source_id, $session_id) {
   $result = array_slice($result, 0, $max_rows);
 
   foreach ($result as $key => $value) {
-    $result[$key]['sourceID'] = $sourceID;
+    $result[$key]['sourceID'] = $source_id;
     $result[$key]['categoryID'] = $categories_id;
 
     $result[$key]['title'] = substr($result[$key]['title'], 0, $titleshrink);
     $result[$key]['body'] = substr($result[$key]['body'], 0, $bodyshrink);
     $result[$key]['url'] = substr($result[$key]['url'], 0, $linkshrink);
-    $result[$key]['sid'] = $sesionID;
+    $result[$key]['sid'] = $session_id;
 
     $result[$key]['url_hash'] = hash("md5", $result[$key]['full_url']);
   }
