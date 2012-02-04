@@ -194,17 +194,17 @@ function whami_source_adapter_demo() {
  *   the lat of the geopoint and the radius
  */
 function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south, $west) {
-  $distTwoLon = 40075.017 / 360;
-  $distTwoLat = 20003.9315 / 180;
+  $dist_two_lon = 40075.017 / 360;
+  $dist_two_lat = 20003.9315 / 180;
 
-  $distLon = 0;
+  $dist_lon = 0;
   $lat = 0;
   if ( $east >= $west ) {
-    $distLon = ($east - $west) * $distTwoLon;
+    $dist_lon = ($east - $west) * $dist_two_lon;
     $lon = 0.5 * ($east + $west);
   }
   else {
-    $distLon = (360 + $east - $west) * $distTowLon;
+    $dist_lon = (360 + $east - $west) * $dist_two_lon;
     $lon = 180 + (0.5 * ($east + $west));
   }
 
@@ -212,10 +212,10 @@ function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south
     $lon = $lon - 360;
   }
 
-  $distLat = ($north - $south) * $distTwoLat;
+  $dist_lat = ($north - $south) * $dist_two_lat;
   $lat = 0.5 * ($north + $south);
 
-  $radius = 0.5 * sqrt(($distLon * $distLon) + ($distLat * $distLat));
+  $radius = 0.5 * sqrt(($dist_lon * $dist_lon) + ($dist_lat * $dist_lat));
 
   return array('lon' => $lon, 'lat' => $lat, 'radius' => $radius);
 }
@@ -236,17 +236,17 @@ function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south
  *   combined form a geographic bounding box
  */
 function whami_source_adapter_convert_geopoint_radius_bbox($lon, $lat, $radius) {
-  $earthLength = 40075.017;
-  $earthBreadth = 20003.9315;
+  $earth_length = 40075.017;
+  $earth_breadth = 20003.9315;
 
-  $length = ($radius * 360 / $earthLength);
+  $length = ($radius * 360 / $earth_length);
   $east = $lon + $length;
   $west = $lon - $length;
 
   $east = $east <= 180 ? $east : $east - 360;
   $west = $west >= -180 ? $west : $west + 360;
 
-  $breadth = ($radius * 180 / $earthBreadth);
+  $breadth = ($radius * 180 / $earth_breadth);
   $north = $lat + $breadth;
   $south = $lat - $breadth;
 
