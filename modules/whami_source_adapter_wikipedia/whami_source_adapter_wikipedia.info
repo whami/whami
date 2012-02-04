@@ -1,4 +1,5 @@
-﻿name = Whami Source Adapter for Wikipedia
+﻿; Whami Source Adapter for Wikipedia
+name = Whami Source Adapter for Wikipedia
 description = Provides a Source Adapter for the whami project.
 core = 6.x
 package = whami
