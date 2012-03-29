@@ -138,7 +138,7 @@ function template_preprocess_whami_panoramio_pic(&$variables) {
   $title_link = l($variables['title'], $variables['pic_page_url'], array('_target' => 'blank', 'external' => TRUE));
   $variables['title_link'] = $title_link;
 
-  $owner_link = t('Author: ') . l($variables['owner_name'], $variables['owner_url'], array('external' => TRUE));
+  $owner_link = l(t('Author: @author', array('@author' => $variables['owner_name'])), $variables['owner_url'], array('external' => TRUE));
   $variables['owner_link'] = $owner_link;
 
   $variables['title_encoded'] = htmlentities($logo . '<br />' . $title_link . '<br />' . $owner_link . '<br />' . $variables['panoramio_license']);

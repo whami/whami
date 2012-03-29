@@ -189,8 +189,9 @@ function whami_source_adapter_demo() {
 }
 
 /**
- * This function converts a bounding box
- * of geographic data into a geographic
+ * Convert a bounding box into a point
+ *
+ * This function converts a bounding box of geographic data into a geographic
  * point and a radius that nears that bounding box
  *
  * @param double $north
