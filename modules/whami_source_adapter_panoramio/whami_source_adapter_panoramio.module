@@ -13,7 +13,7 @@ module_load_include('inc', 'whami_source_adapter_panoramio');
 function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      return array(array('info' => 'Whami Source Adapter: Panoramio', 'cache' => BLOCK_CACHE_PER_PAGE));
+      return array(array('info' => t('Whami Source Adapter: Panoramio'), 'cache' => BLOCK_CACHE_PER_PAGE));
 
     case 'configure':
       return _whami_source_adapter_block_config_form('panoramio', $delta);
@@ -64,11 +64,22 @@ function whami_source_adapter_panoramio_theme($existing, $type, $theme, $path) {
   return array(
     'whami_panoramio_table' => array(
       'template' => 'whami_panoramio_table',
-      'arguments' => array('result' => array(), 'imgSize_big' => 'medium', 'imgSize_preview' => 'square'),
+      'arguments' => array(
+        'result' => array(),
+        'imgSize_big' => 'medium',
+        'imgSize_preview' => 'square',
+      ),
     ),
     'whami_panoramio_pic' => array(
       'template' => 'whami_panoramio_pic',
-      'arguments' => array('link' => '', 'link_preview' => '', 'title' => '', 'pic_page_url' => '', 'owner_name' => '', 'owner_url' => ''),
+      'arguments' => array(
+        'link' => '',
+        'link_preview' => '',
+        'title' => '',
+        'pic_page_url' => '',
+        'owner_name' => '',
+        'owner_url' => '',
+      ),
     ),
   );
 }

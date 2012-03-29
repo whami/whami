@@ -20,8 +20,27 @@
  *   The results of the geonames webservice request
  */
 function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_rows) {
-  $query = array('north' => $bbox['north'], 'south' => $bbox['south'], 'east' => $bbox['east'], 'west' => $bbox['west'], 'lang' => $lan, 'maxRows' => $max_request_rows);
-  $result = geonames_query('wikipediaboundingbox', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'elevation')));
+  $query = array(
+    'north' => $bbox['north'],
+    'south' => $bbox['south'],
+    'east' => $bbox['east'],
+    'west' => $bbox['west'],
+    'lang' => $lan,
+    'maxRows' => $max_request_rows,
+  );
+
+  $parameters = array(
+    'columns' => array(
+      'title',
+      'summary',
+      'wikipediaurl',
+      'lat',
+      'lng',
+      'elevation',
+    ),
+  );
+
+  $result = geonames_query('wikipediaboundingbox', $query, $parameters);
 
   $ret = array();
 
@@ -51,9 +70,27 @@ function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_r
  *   The results of the geonames webservice request
  */
 function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $lan, $max_request_rows) {
-  $query = array('lat' => $lat, 'lng' => $lon, 'radius' => $radius, 'lang' => $lan, 'maxRows' => $max_request_rows);
+  $query = array(
+    'lat' => $lat,
+    'lng' => $lon,
+    'radius' => $radius,
+    'lang' => $lan,
+    'maxRows' => $max_request_rows,
+  );
 
-  $result = geonames_query('findnearbywikipedia', $query, array('columns' => array('title', 'summary', 'wikipediaurl', 'lat', 'lng', 'distance', 'elevation')));
+  $parameters = array(
+    'columns' => array(
+      'title',
+      'summary',
+      'wikipediaurl',
+      'lat',
+      'lng',
+      'distance',
+      'elevation',
+    ),
+  );
+
+  $result = geonames_query('findnearbywikipedia', $query, $parameters);
 
   $results = whami_source_adapter_wikipedia_return($result, $lan);
 

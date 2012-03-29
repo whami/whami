@@ -1,4 +1,3 @@
-﻿; whami Source Adapter
 name = whami Source Adapter
 description = Basic functionality for whami Source Adapter adapters.
 core = 6.x

@@ -13,7 +13,7 @@ module_load_include('inc', 'whami_source_adapter_wikipedia');
 function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      return array(array('info' => 'Whami Source Adapter: Wikipedia', 'cache' => BLOCK_CACHE_PER_PAGE));
+      return array(array('info' => t('Whami Source Adapter: Wikipedia'), 'cache' => BLOCK_CACHE_PER_PAGE));
 
     case 'configure':
       return _whami_source_adapter_block_config_form('wikipedia', $delta);
@@ -28,8 +28,10 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
       $nid = check_plain(arg(1));
       if (strcmp(arg(0), 'node') == 0 && is_numeric($nid) && !arg(2)) {
         $node = node_load($nid);
+
         if ($node !== FALSE) {
           $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'geofield'), '');
+
           if (strlen($geo_field_name)) {
             global $language;
             $langcode = $language->language;
@@ -74,7 +76,13 @@ function template_preprocess_whami_source_adapter_wikipedia_content(&$variables)
       $item_content = l($entry['title'], $entry['full_url']);
 
       $logo_path = drupal_get_path('module', 'whami_source_adapter_wikipedia') . '/wikipedia-small-logo.png';
-      $logo_attributes = array('width' => '34px', 'height' => '34px', 'style' => 'float: right');
+
+      $logo_attributes = array(
+        'width' => '34px',
+        'height' => '34px',
+        'style' => 'float: right',
+      );
+
       $item_content .= l(theme_image($logo_path, $entry['title'], $entry['title'], $logo_attributes), $entry['full_url'], array('html' => TRUE));
 
       $item_content .= '<p>' . $entry['body'] . '</p>';
