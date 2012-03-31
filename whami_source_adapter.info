@@ -3,4 +3,4 @@ description = Basic functionality for whami Source Adapter adapters.
 core = 6.x
 package = whami
 dependencies[] = geo
-dependencies[] = cck
+dependencies[] = content
