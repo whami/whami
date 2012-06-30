@@ -4,6 +4,8 @@
  * whami Source Adapter module
  */
 
+module_load_include('inc', 'whami_source_adapter', 'whami_source_adapter_toolkit');
+
 /**
  * Function that request for data to a source adapter
  * from certain Bounding Box
@@ -87,6 +89,121 @@ function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $lan, $catego
 }
 
 /**
+ * Call a generic function on a source adapter
+ */
+function whami_source_adapter_call_method($method, $params, $source_id, $lang_code = '', $max_rows = 10, $render = true, $session_id = '') {
+  $function = 'whami_source_adapter_' . $source_id . '_' . $method;
+
+  if (module_exists('whami_source_adapter_' . $source_id) && function_exists($function)) {
+    $result = $function($params, $lang_code, $max_rows);
+    return whami_source_adapter_parse_response($result, $source_id, $max_rows, $render, $session_id);
+  }
+  else {
+    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
+  }
+
+  return $sources;
+}
+
+/**
+ * Creates a map of the whami sources and their categories
+ *
+ * @return Map that associates each source with its categories
+ */
+function whami_get_datasource_nodes() {
+  //Get All the Data Sources
+  $query = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.type = 'whamidatasource'"));
+  while ($result =db_fetch_array($query)){
+    $node = node_load($result);
+    $sources[$node->field_programname[0]['value']] = $node;
+  }
+  //Get the nid for each category
+  $query = db_query("SELECT nid, field_whamicategoryid_value FROM {content_type_whamicategories}");
+  while ($result = db_fetch_array($query)){
+    $nids[$result['nid']] = $result['field_whamicategoryid_value'];
+    $node = node_load($result['nid']);
+    $categories[$result['field_whamicategoryid_value']] = $node;
+  }
+
+  foreach ($sources as $key => $value){
+    $cats = array();
+    foreach ($sources[$key]->field_whamicategories as $category => $nid){
+      $cats[$nids[$nid['nid']]] = $categories[$nids[$nid['nid']]];
+    }
+    $sources[$key]->whami_categories = $cats;
+  }
+
+  return $sources;
+}
+
+/**
+ *
+ * Takes the datasource nodes and generates the datasource list
+ * @param $datasource_map
+ */
+function whami_build_data_sources($datasource_map = array(), $render = true, $add_to_js = false) {
+  if (!count($datasource_map)) $datasource_map = whami_get_datasource_nodes();
+
+  foreach($datasource_map as $key => $value){
+    $datasource = array();
+    $datasource['source_id'] = $key;
+    $datasource['source_name'] = $datasource_map[$key]->title;
+    $datasource['own_whami_content'] = strcmp($value->field_whamiowncontent[0]['value'], 'yes') == 0 ? true : false;
+
+    $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . base_path() . $datasource_map[$key]->field_sourceimage[0]['filepath']);
+    $datasource['map_display_icon'] = url($GLOBALS['base_url'] . base_path() . $value->field_mapdisplayicon[0]['filepath']);
+
+    $datasource['titleshrink'] = isset($value->field_titleshrink[0]['value']) ? $value->field_titleshrink[0]['value'] : NULL;
+    $datasource['bodyshrink'] = isset($value->field_bodyshrink[0]['value']) ? $value->field_bodyshrink[0]['value'] : NULL;
+    $datasource['linkshrink'] = isset($value->field_linkshrink[0]['value']) ? $value->field_linkshrink[0]['value'] : NULL;
+    $datasource['maxRequestRows'] = isset($value->field_maxrequestrows[0]['value']) ? $value->field_maxrequestrows[0]['value'] : NULL;
+    $datasource['maxRows'] = $value->field_maxrows[0]['value'];
+
+    //Theming
+    if ($render) {
+      $datasource['source_image']['themed'] = theme_image($datasource['source_image']['filepath'], $datasource['source_name'], $datasource['source_name'], null, false);
+    }
+
+    $whami_datasources[$key] = $datasource;
+  }
+
+    if ($add_to_js) {
+      $whami_js_settings = array('data_sources' => $whami_datasources);
+      drupal_add_js(array('whami' => $whami_js_settings), "setting");
+    }
+
+  return $whami_datasources;
+}
+
+///**
+// * Get the configured DataSources in format that can be passed to the client.
+// *
+// * @param $add_to_js boolean optional If you want to add the datasource to the Drupal.settings object.
+// *      Default false, if you set to true, the following parameter whami_data_source_name must be provided.
+// * @param $whami_data_source_name optional The name of the datasource for whami internal content
+// */
+//function whami_get_datasources_in_client_format($add_to_js = false, $whami_data_source_name = '', $datasource_map = 0) {
+//  $whami_datasources = array();
+//
+//  if (!$datasource_map) $datasource_map = whami_get_datasource_category_mapping();
+//  foreach($datasource_map as $key => $value) {
+//    $datasource = array();
+//    $datasource['source_name'] = $datasource_map[$key]->title;
+//    $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . base_path() . $datasource_map[$key]->field_sourceimage[0]['filepath']);
+//    $datasource['own_whami_content'] = $value->field_whamiowncontent[0]['value'];
+//    $datasource['map_display_icon'] = url($GLOBALS['base_url'] . base_path() . $value->field_mapdisplayicon[0]['filepath']);
+//    $whami_datasources[$datasource_map[$key]->title] = $datasource;
+//  }
+//
+//  if ($add_to_js) {
+//    $whami_js_settings = array('whami_source_name' => $whami_data_source_name, 'data_sources' => $whami_datasources);
+//    drupal_add_js(array('whami' => $whami_js_settings), "setting");
+//  }
+//
+//  return $whami_datasources;
+//}
+
+/**
  *  Function that parses the results from an specific source adapter
  *  to the main format
  *
@@ -110,19 +227,62 @@ function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $lan, $catego
  * @return array
  *   Parsed response for the Source Adapter
  */
-function whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $source_id, $session_id) {
+function whami_source_adapter_parse_response($result, $source_id, $max_rows = 10, $render = true, $session_id = '') { //$categories_id = NULL
+
+  $map = whami_get_datasource_nodes();
+  $sources = whami_build_data_sources($map);
+
   $result = array_slice($result, 0, $max_rows);
 
   foreach ($result as $key => $value) {
-    $result[$key]['sourceID'] = $source_id;
-    $result[$key]['categoryID'] = $categories_id;
+    if(!strlen($result[$key]['source_id'])) $result[$key]['source_id'] = $source_id;
+    if(!strlen($result[$key]['url'])) $result[$key]['url'] = $result[$key]['full_url'];
+    if(!strlen($result[$key]['node_url'])) $result[$key]['node_url'] = $result[$key]['full_url'];
+    if(!strlen($result[$key]['url_hash'])) $result[$key]['url_hash'] = hash("md5", $result[$key]['full_url']);
 
-    $result[$key]['title'] = substr($result[$key]['title'], 0, $titleshrink);
-    $result[$key]['body'] = substr($result[$key]['body'], 0, $bodyshrink);
-    $result[$key]['url'] = substr($result[$key]['url'], 0, $linkshrink);
-    $result[$key]['sid'] = $session_id;
+    if(strlen($session_id)) $result[$key]['sid'] = $session_id;
 
-    $result[$key]['url_hash'] = hash("md5", $result[$key]['full_url']);
+    $result[$key]['source_name'] = $sources[$result[$key]['source_id']]['source_name'];
+    $result[$key]['own_whami_content'] = $sources[$result[$key]['source_id']]['own_whami_content']; //$sources[$value['sourceID']]->field_whamiowncontent[0]['value'];
+    $result[$key]['source_image'] = $sources[$result[$key]['source_id']]['source_image'];//$sources[$value['sourceID']]->field_sourceimage[0];
+    $result[$key]['map_display_icon'] =  $sources[$result[$key]['source_id']]['map_display_icon']; //$sources[$value['sourceID']]->field_mapdisplayicon[0];
+
+    //$result[$key]['categoryID'] = $categories_id;
+
+    //Shrink fields
+    $titleshrink = $sources[$result[$key]['source_id']]['titleshrink'];
+    $bodyshrink = $sources[$result[$key]['source_id']]['bodyshrink'];
+    $linkshrink = $sources[$result[$key]['source_id']]['linkshrink'];
+
+    if (strlen($result[$key]['title']) > $titleshrink && $titleshrink > 1) {
+     $result[$key]['title'] = substr($result[$key]['title'], 0, $titleshrink) . "...";
+    }
+    if (strlen($result[$key]['body']) > $bodyshrink && $bodyshrink > 1) {
+//    	$result[$key]['body'] = substr($result[$key]['body'], 0, $bodyshrink) . "...";
+    }
+    if (strlen($result[$key]['url']) > $linkshrink && $linkshrink > 1) {
+      $result[$key]['url'] = substr($result[$key]['url'], 0, $linkshrink) . "...";
+    }
+
+    if($render) {
+
+//      if(!$result[$key]['cached']) {
+//       $result[$key]['body'] = theme('whami_place_licence', $result[$key], 'body', $result[$key]['node_url'], $result[$key]['url']);
+//      }
+
+
+      if (!strlen($result[$key]['teaser'])) {
+//        if(!$result[$key]['cached']) {
+         $result[$key]['teaser'] = theme('whami_place_teaser', $result[$key]);
+//        }
+      }
+      else {
+//        $result[$key]['teaser'] = $result[$key]['body'];
+      }
+
+//      $result[$key]['infoBubble'] = theme('whami_infobubble', $result[$key], $sources[$result[$key]['source_id']]);
+    }
+
   }
 
   return $result;
@@ -171,106 +331,25 @@ function whami_source_adapter_demo() {
   	'west' => 134.121094
   */
 
-  $a = whami_source_adapter_bounding_box(array(
-    'north' => -31.278551,
-    'south' => -45.79817,
-    'east' => 154.248047,
-    'west' => 134.121094,
-  ), 'de', array("03"), 'panoramio', 3, 10, 10, 10, 20, $session_id);
-  $b = whami_source_adapter_geopoint_radius(40, -3, 10, 'es', array("03"), 'panoramio', 3, 10, 10, 10, 20, $session_id);
+//  $a = whami_source_adapter_bounding_box(array(
+//    'north' => -31.278551,
+//    'south' => -45.79817,
+//    'east' => 154.248047,
+//    'west' => 134.121094,
+//  ), 'de', array("03"), 'panoramio', 3, 10, 10, 10, 20, $session_id);
+//  $b = whami_source_adapter_geopoint_radius(40, -3, 10, 'es', array("03"), 'panoramio', 3, 10, 10, 10, 20, $session_id);
+//
+//  $table_a = '<h2>whami_source_adapter_bounding_box</h2><br /> results for: whami_source_adapter_bounding_box(NULL, \'es\', array("01"), \'wikipedia\', 3, 10, 10, 10, 20)';
+//  $table_a .= theme_table(array_keys($a[0]), $a);
+//
+//  $table_b = '<h2>whami_source_adapter_geopoint_radius</h2><br /> results for: whami_source_adapter_geopoint_radius(40,-3,10,\'es\',array("01"),\'wikipedia\', 3, 10, 10 , 10 , 20)';
+//  $table_b .= theme_table(array_keys($b[0]), $b);
 
-  $table_a = '<h2>whami_source_adapter_bounding_box</h2><br /> results for: whami_source_adapter_bounding_box(NULL, \'es\', array("01"), \'wikipedia\', 3, 10, 10, 10, 20)';
-  $table_a .= theme_table(array_keys($a[0]), $a);
+  $place_list = whami_source_adapter_call_method('get_place_for_nid', 2864, 'node');
+//    $place_list = whami_build_data_sources();
+//
+    $place_table = theme_table(array_keys($place_list[array_rand($place_list, 1)]), $place_list);
 
-  $table_b = '<h2>whami_source_adapter_geopoint_radius</h2><br /> results for: whami_source_adapter_geopoint_radius(40,-3,10,\'es\',array("01"),\'wikipedia\', 3, 10, 10 , 10 , 20)';
-  $table_b .= theme_table(array_keys($b[0]), $b);
-
-  return $table_a . $table_b;
-}
-
-/**
- * Convert a bounding box into a point
- *
- * This function converts a bounding box of geographic data into a geographic
- * point and a radius that nears that bounding box
- *
- * @param double $north
- *   The longitude of the "upper/right" geopoint
- * @param double $east
- *   The latitude of the "upper/right" geopoint
- * @param double $south
- *   The longitude of the "lower/left" geopoint
- * @param double $west
- *   The latitude of the "lower/left" geopoint
- *
- * @return array
- *   A one-dimensional array with the lon of the geopoint,
- *   the lat of the geopoint and the radius
- */
-function whami_source_adapter_convert_bbox_geopoint_radius($north, $east, $south, $west) {
-  $dist_two_lon = 40075.017 / 360;
-  $dist_two_lat = 20003.9315 / 180;
-
-  $dist_lon = 0;
-  $lat = 0;
-  if ($east >= $west) {
-    $dist_lon = ($east - $west) * $dist_two_lon;
-    $lon = 0.5 * ($east + $west);
-  }
-  else {
-    $dist_lon = (360 + $east - $west) * $dist_two_lon;
-    $lon = 180 + (0.5 * ($east + $west));
-  }
-
-  if ($lon > 180) {
-    $lon = $lon - 360;
-  }
-
-  $dist_lat = ($north - $south) * $dist_two_lat;
-  $lat = 0.5 * ($north + $south);
-
-  $radius = 0.5 * sqrt(($dist_lon * $dist_lon) + ($dist_lat * $dist_lat));
-
-  return array('lon' => $lon, 'lat' => $lat, 'radius' => $radius);
-}
-
-/**
- * This function converts a "geographic circle" into
- * bounding box denoted by 2 geopoints
- *
- * @param double $lon
- *   The longitude of the geographic point
- * @param double $lat
- *   The latitude of the geographic point
- * @param int $radius
- *   The radius of the geographic circle
- *
- * @return array
- *   A one-dimensional array denoting two geograpic points which
- *   combined form a geographic bounding box
- */
-function whami_source_adapter_convert_geopoint_radius_bbox($lon, $lat, $radius) {
-  $earth_length = 40075.017;
-  $earth_breadth = 20003.9315;
-
-  $length = ($radius * 360 / $earth_length);
-  $east = $lon + $length;
-  $west = $lon - $length;
-
-  $east = $east <= 180 ? $east : $east - 360;
-  $west = $west >= -180 ? $west : $west + 360;
-
-  $breadth = ($radius * 180 / $earth_breadth);
-  $north = $lat + $breadth;
-  $south = $lat - $breadth;
-
-  $north = $north > 90 ? 90 : $north;
-  $south = $south < -90 ? -90 : $south;
-
-  return array(
-    'north' => $north,
-    'east' => $east,
-    'south' => $south,
-    'west' => $west,
-  );
+  return $place_table;
+//  return $table_a . $table_b;
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Whami Source Adapter Wikipedia module
+ * whami Source Adapter Wikipedia module
  *
  * This module takes geographic data as input and returns Wikipedia articles
  * that are "geograpically near" to the input geo data
@@ -15,7 +15,7 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
 
   switch ($op) {
     case 'list':
-      return array(array('info' => t('Whami Source Adapter: Wikipedia'), 'cache' => BLOCK_CACHE_PER_PAGE));
+      return array(array('info' => t('whami Source Adapter: Wikipedia'), 'cache' => BLOCK_CACHE_PER_PAGE));
 
     case 'configure':
       return _whami_source_adapter_block_config_form('wikipedia', $delta);

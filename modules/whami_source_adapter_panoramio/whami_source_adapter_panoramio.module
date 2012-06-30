@@ -47,7 +47,7 @@ function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = 
             $result_preview = whami_source_adapter_panoramio_geopoint_radius($point['lat'], $point['lon'], $radius, $langcode, $max_results, $imgSize_preview);
             $result = whami_source_adapter_panoramio_merge_preview_pics($result, $result_preview, $imgSize_preview);
 
-            $block['subject'] = t('Panoramio pics around node');
+            $block['subject'] = t('Pictures nearby');
             $block['content'] = theme('whami_panoramio_table', $result, $imgSize_big, $imgSize_preview);
           }
         }
@@ -88,8 +88,8 @@ function whami_source_adapter_panoramio_theme($existing, $type, $theme, $path) {
  * Implements template_preprocess_HOOK().
  */
 function template_preprocess_whami_panoramio_table(&$variables) {
-  $variables['table_title'] = t('Pictures nearby from Panoramio');
-  $variables['panoramio_license'] = t('Photos provided by Panoramio are under the copyright of their owners.');
+  $variables['panoramio_title'] = t('Photos provided by');
+  $variables['panoramio_license'] = t('are under the copyright of their owners.');
 
   $logo = theme_image(drupal_get_path('module', 'whami_source_adapter_panoramio') . '/panoramio-logo.png');
   $variables['panoramio_logo'] = $logo;
@@ -141,5 +141,5 @@ function template_preprocess_whami_panoramio_pic(&$variables) {
   $owner_link = l(t('Author: @author', array('@author' => $variables['owner_name'])), $variables['owner_url'], array('external' => TRUE));
   $variables['owner_link'] = $owner_link;
 
-  $variables['title_encoded'] = htmlentities($logo . '<br />' . $title_link . '<br />' . $owner_link . '<br />' . $variables['panoramio_license']);
+  $variables['title_encoded'] = htmlentities($logo . '<br />' . $title_link . '<br />' . $owner_link . '<br />' . $variables['panoramio_license'], ENT_QUOTES, "UTF-8");
 }

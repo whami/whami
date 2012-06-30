@@ -37,6 +37,7 @@ function whami_source_adapter_wikipedia_bounding_box($bbox, $lan, $max_request_r
       'lat',
       'lng',
       'elevation',
+      'feature',
     ),
   );
 
@@ -87,6 +88,7 @@ function whami_source_adapter_wikipedia_geopoint_radius($lat, $lon, $radius, $la
       'lng',
       'distance',
       'elevation',
+      'feature',
     ),
   );
 
@@ -118,13 +120,14 @@ function whami_source_adapter_wikipedia_return($result, $langcode) {
         'categoryID' => '01',
         'title' => $value['title'],
         'body' => $value['summary'],
+        'type' => strlen($value['feature']) ? $value['feature'] : 'Article',
         'url' => $value['wikipediaurl'],
         'full_url' => $value['wikipediaurl'],
         'latitude' => $value['lat'],
         'longitude' => $value['lng'],
         'elevation' => $value['elevation'],
         'distance' => isset($value['distance']) ? $value['distance'] : NULL,
-        'license' => '<div class="whami_wiki_license">' . t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) . '</div>',
+        'license' => '<div class="whami_wiki_licence">' . t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode) . '</div>',
       );
     }
   }

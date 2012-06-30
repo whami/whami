@@ -1,6 +1,7 @@
-﻿; whami Source Adapter for Wikipedia
-name = whami Source Adapter for Wikipedia
+﻿; whami Source Adapter - Wikipedia
+name = whami Source Adapter - Wikipedia
 description = Provides a Source Adapter for the Wikipedia database.
 core = 6.x
+package = whami
 dependencies[] = geonames
 dependencies[] = whami_source_adapter
