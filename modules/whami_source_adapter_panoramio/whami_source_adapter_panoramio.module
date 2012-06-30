@@ -13,7 +13,7 @@ module_load_include('inc', 'whami_source_adapter_panoramio');
 function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      return array(array('info' => t('Whami Source Adapter: Panoramio'), 'cache' => BLOCK_CACHE_PER_PAGE));
+      return array(array('info' => t('whami Source Adapter: Panoramio'), 'cache' => BLOCK_CACHE_PER_PAGE));
 
     case 'configure':
       return _whami_source_adapter_block_config_form('panoramio', $delta);
