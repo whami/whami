@@ -1,0 +1,30 @@
+<?php
+
+module_load_include('inc', 'whami_source_adapter_facebook', 'whami_source_adapter_facebook_toolkit');
+
+/**
+ *
+ * Implementation of hook_menu()
+ */
+function whami_source_adapter_facebook_menu() {
+  $items = array();
+
+  $items['admin/settings/whami_source_adapter_facebook'] = array(
+      'title' => t('whami Source Adapter Facebook settings'),
+      'description' => t('configure the settings for the whami Source Adapter Facebook'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('_whami_source_adapter_facebook_admin'),
+      'access arguments' => array('access administration pages'),
+      'file' => 'whami_source_adapter_facebook.admin.inc',
+  );
+
+//  $items['whami_source_adapter_facebook/%'] = array(
+//      'title' => 'Whami Source Adapter Facebook',
+//      'page callback' => 'whami_source_adapter_facebook_page',
+//      'page arguments' => array(1),
+//      'access arguments' => array('access content'),
+//      'type' => MENU_CALLBACK,
+//  );
+
+  return $items;
+}
