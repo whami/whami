@@ -11,14 +11,23 @@
  * Implements hook_block().
  */
 function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = array()) {
+  module_load_include('inc', 'whami_source_adapter');
   module_load_include('inc', 'whami_source_adapter_wikipedia');
 
   switch ($op) {
     case 'list':
-      return array(array('info' => t('whami Source Adapter: Wikipedia'), 'cache' => BLOCK_CACHE_PER_PAGE));
+      return array(
+        'whami_wikipedia_place_by_url' => array('info' => t('whami Source Adapter: Wikipedia info'), 'cache' => BLOCK_CACHE_PER_PAGE),
+        'whami_wikipedia_places_nearby' => array('info' => t('whami Source Adapter: Wikipedia nearby'), 'cache' => BLOCK_CACHE_PER_PAGE),
+      );
 
     case 'configure':
-      return _whami_source_adapter_block_config_form('wikipedia', $delta);
+      if(strcmp($delta, 'whami_wikipedia_places_nearby') == 0) {
+        return _whami_source_adapter_block_config_form('wikipedia', $delta, array("geofield"));
+      }
+      if(strcmp($delta, 'whami_wikipedia_place_by_url') == 0) {
+        return _whami_source_adapter_block_config_form('wikipedia', $delta, array("linkfield"));
+      }
 
     case 'save':
       _whami_source_adapter_block_config_save('wikipedia', $delta, $edit);
@@ -32,27 +41,46 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
         $node = node_load($nid);
 
         if ($node !== FALSE) {
-          module_load_include('inc', 'whami_source_adapter');
 
-          $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'geofield'), '');
+          //Check if the block is activated for this content type
+          if( !variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'active'), false) ) return;
 
-          if (strlen($geo_field_name)) {
-            global $language;
-            $langcode = $language->language;
+          $langcode = $GLOBALS['language']->language;
+          $node_lang = strlen($node->language) ? $node->language : $langcode;
 
-            $point = geo_value($node->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
-            $max_results = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'max_results'), 10);
-            $radius = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'radius'), 10);
+          if(strcmp($delta, 'whami_wikipedia_places_nearby') == 0) {
 
-            $wikipedia_data = whami_source_adapter_wikipedia_geopoint_radius($point['lat'], $point['lon'], $radius, $langcode, $max_results);
+            $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'geofield'), '');
+            if (strlen($geo_field_name)) {
 
-            $block['subject'] = t('Wikipedia');
-            $block['content'] = theme('whami_source_adapter_wikipedia_content', $wikipedia_data);
+              $point = geo_value($node->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
+              $max_results = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'max_results'), 10);
+              $radius = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'radius'), 10);
+
+              $wikipedia_data = whami_source_adapter_wikipedia_geopoint_radius($point['lat'], $point['lon'], $radius, $langcode, $max_results);
+              $block['subject'] = t('Wikipedia Places nearby');
+              $block['content'] = theme('whami_source_adapter_wikipedia_content', $wikipedia_data);
+            }
+
           }
-        }
-      }
 
-      return $block;
+          if(strcmp($delta, 'whami_wikipedia_place_by_url') == 0) {
+
+            $link_field_name = variable_get(_whami_source_adapter_conf_variable_name('wikipedia', $delta, $node->type, 'linkfield'), '');
+            if (strlen($link_field_name)) {
+              $wiki_link = $node->{$link_field_name}[0]['url'];
+              $wiki_link = html_entity_decode($wiki_link, ENT_QUOTES, 'UTF-8');
+
+              $wikipedia_data = whami_source_adapter_wikipedia_get_place_by_url($wiki_link, $node_lang);
+              $block['subject'] = t('Wikipedia Place Info');
+              $block['content'] = theme('whami_source_adapter_wikipedia_content', $wikipedia_data);
+            }
+          }
+
+          return $block;
+        }
+
+      }
   }
 }
 
@@ -83,7 +111,7 @@ function template_preprocess_whami_source_adapter_wikipedia_content(&$variables)
     foreach ($variables['wikipedia_data'] as $key => $entry) {
       $item_content = l($entry['title'], $entry['full_url']);
 
-      $logo_path = drupal_get_path('module', 'whami_source_adapter_wikipedia') . '/wikipedia-small-logo.png';
+      $logo_path = drupal_get_path('module', 'whami_source_adapter_wikipedia') . '/images/' . 'wikipedia-logo.png';
 
       $logo_attributes = array(
         'width' => '34px',

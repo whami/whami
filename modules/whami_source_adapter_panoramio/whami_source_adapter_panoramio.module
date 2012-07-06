@@ -16,7 +16,7 @@ function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = 
       return array(array('info' => t('whami Source Adapter: Panoramio'), 'cache' => BLOCK_CACHE_PER_PAGE));
 
     case 'configure':
-      return _whami_source_adapter_block_config_form('panoramio', $delta);
+      return _whami_source_adapter_block_config_form('panoramio', $delta, array("geofield"));
 
     case 'save':
       _whami_source_adapter_block_config_save('panoramio', $delta, $edit);
@@ -24,24 +24,27 @@ function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = 
 
     case 'view':
       $block = array();
+
       // Only show on node view page.
       $nid = check_plain(arg(1));
-
       if (strcmp(arg(0), 'node') == 0 && is_numeric($nid) && !arg(2)) {
-        global $language;
-        $langcode = $language->language;
+        $node = menu_get_object();
 
-        $place = menu_get_object();
+        if ($node !== FALSE) {
 
-        if ($place !== FALSE && variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'active'), 0) > 0) {
-          $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'geofield'), '');
+        //Check if the block is activated for this content type
+        if( !variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $node->type, 'active'), false) ) return;
+
+        $langcode = $GLOBALS['language']->language;
+
+          $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $node->type, 'geofield'), '');
           if (strlen($geo_field_name)) {
             $imgSize_preview = 'square';
             $imgSize_big = 'medium';
-            $radius = variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'radius'), 10);
-            $max_results = (int) variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $place->type, 'max_results'), 10);
+            $radius = (int) variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $node->type, 'radius'), 10);
+            $max_results = (int) variable_get(_whami_source_adapter_conf_variable_name('panoramio', $delta, $node->type, 'max_results'), 10);
 
-            $point = geo_value($place->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
+            $point = geo_value($node->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
 
             $result = whami_source_adapter_panoramio_geopoint_radius($point['lat'], $point['lon'], $radius, $langcode, $max_results, $imgSize_big);
             $result_preview = whami_source_adapter_panoramio_geopoint_radius($point['lat'], $point['lon'], $radius, $langcode, $max_results, $imgSize_preview);
@@ -91,7 +94,7 @@ function template_preprocess_whami_panoramio_table(&$variables) {
   $variables['panoramio_title'] = t('Photos provided by');
   $variables['panoramio_license'] = t('are under the copyright of their owners.');
 
-  $logo = theme_image(drupal_get_path('module', 'whami_source_adapter_panoramio') . '/panoramio-logo.png');
+  $logo = theme_image(drupal_get_path('module', 'whami_source_adapter_panoramio') . '/images/' . 'panoramio-image.png');
   $variables['panoramio_logo'] = $logo;
 
   $result = $variables['result'];
@@ -132,7 +135,7 @@ function template_preprocess_whami_panoramio_table(&$variables) {
 function template_preprocess_whami_panoramio_pic(&$variables) {
   $variables['panoramio_license'] = t('Photos provided by Panoramio are under the copyright of their owners.');
 
-  $logo = theme_image(drupal_get_path('module', 'whami_source_adapter_panoramio') . '/panoramio-logo.png');
+  $logo = theme_image(drupal_get_path('module', 'whami_source_adapter_panoramio') . '/images/' . '/panoramio-image.png');
   $variables['panoramio_logo'] = $logo;
 
   $title_link = l($variables['title'], $variables['pic_page_url'], array('_target' => 'blank', 'external' => TRUE));

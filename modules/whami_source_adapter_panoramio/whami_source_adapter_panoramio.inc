@@ -11,19 +11,29 @@
  *   result
  */
 function whami_source_adapter_panoramio_return($result) {
-  if (isset($result->results)) {
+  if (isset($result)) {
     foreach ($result as $key => $value) {
       $img_attributes = array('width' => $result[$key]['width'], 'height' => $result[$key]['height']);
       $img = theme_image($result[$key]['photo_file_url'], $result[$key]['title'], $result[$key]['title'], $img_attributes, FALSE);
 
-      $link = l($img, $result[$key]['full_url'], array('HTML' => TRUE, 'attributes' => array('target' => '_blank')));
+      $link = l($img, $result[$key]['full_url'], array('html' => TRUE, 'attributes' => array('target' => '_blank')));
       $author_link = l(htmlentities($result[$key]['owner_name']), $result[$key]['owner_url'], array('attributes' => array('target' => '_blank')));
 
       $body = $link;
-      $body .= '<p>' . t('Author') . ': ' . $author_link . '</p>';
-      $body .= '<p>' . t('Photos provided by Panoramio are under the copyright of their owners.') . '</p>';
+      $body .= '<p style=\'margin-bottom:0\'>' . t('Author') . ': ' . $author_link . '</p>';
+//      $body .= '<p>' .  . '</p>';
 
       $result[$key]['body'] = $body;
+
+//        $result[$key]['title'] = $value['title'];
+//        $result[$key]['body'] = strlen($value['summary']) ? $value['summary'] : $value['extract'];
+        $result[$key]['type'] = strlen($value['type']) ? $value['type'] : 'Photo';
+//        'url' => strlen($value['wikipediaurl']) ? $value['wikipediaurl'] : $value['fullurl'],
+//        'full_url' => strlen($value['wikipediaurl']) ? $value['wikipediaurl'] : $value['fullurl'],
+//        'latitude' => $value['lat'],
+//        'longitude' => $value['lng'],
+        $result[$key]['source_id'] = 'panoramio';
+        $result[$key]['licence'] = '<div class="whami_wiki_licence">' . t('Photos provided by Panoramio are under the copyright of their owners.') . '</div>';
     }
   }
   return $result;

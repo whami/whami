@@ -1,5 +1,5 @@
 name = whami Source Adapter
-description = Basic functionality for whami Source Adapter adapters.
+description = Basic functionality for whami Source Adapters.
 core = 6.x
 package = whami
 dependencies[] = geo

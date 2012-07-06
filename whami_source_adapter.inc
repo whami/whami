@@ -30,8 +30,14 @@ function _whami_source_adapter_conf_variable_name($source_id, $block_name, $opti
  * @param string $delta
  *   Block delta
  */
-function _whami_source_adapter_block_config_form($source_id, $delta) {
+function _whami_source_adapter_block_config_form($source_id, $delta, $whami_content_fields = '') {
   $form = array();
+
+  if(!is_array($whami_content_fields)) $whami_content_fields = array('geofield', 'sources');
+
+  if ( is_numeric(array_search('sources', $whami_content_fields)) ) {
+          $data_sources = whami_build_data_sources();
+  }
 
   if (drupal_strlen($source_id) && drupal_strlen($delta) && module_exists('content') && function_exists('content_types')) {
     $types = content_types();
@@ -61,15 +67,27 @@ function _whami_source_adapter_block_config_form($source_id, $delta) {
         );
 
         if (function_exists('content_fields')) {
-          $geofields = content_fields(NULL, $type_name);
-          foreach ($geofields as $field_name => $field) {
-            if (!strcmp($field['type'], 'geo') && $field['widget_active']) {
+          $cckfields = content_fields(NULL, $type_name);
+          unset($geofields);
+          unset($linkfields);
+          foreach ($cckfields as $field_name => $field) {
+
+            //Check if cck geo field
+            if (!strcmp($field['type'], 'geo') && $field['widget_active'] && is_numeric(array_search('geofield', $whami_content_fields)) ) {
               $geofields[$field_name] = $field['widget']['label'];
             }
-            else {
-              unset($geofields[$field_name]);
+
+            //Check if cck link field
+            if (!strcmp($field['type'], 'link') && $field['widget_active'] && is_numeric(array_search('linkfield', $whami_content_fields)) ) {
+              $linkfields[$field_name] = $field['widget']['label'];
             }
-          }
+
+            //Check if cck text field
+            if (!strcmp($field['type'], 'text') && $field['widget_active'] && is_numeric(array_search('textfield', $whami_content_fields)) ) {
+              $textfields[$field_name] = $field['widget']['label'];
+            }
+
+          } //endloop over cckfields
 
           if (!empty($geofields)) {
             $form['whami_source_adapter_' . $source_id][$type_name]['geofield'] = array(
@@ -93,13 +111,70 @@ function _whami_source_adapter_block_config_form($source_id, $delta) {
               '#type' => 'textfield',
               '#title' => t('max. results'),
               '#default_value' => variable_get(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'max_results'), 10),
-              '#description' => t('The max. number of results requested from the underlying service'),
+              '#description' => t('The max. number of total results to get from the underlying service'),
               '#size' => 3,
               '#maxlength' => 3,
             );
           }
+
+        if(!empty($linkfields)) {
+            $form['whami_source_adapter_' . $source_id][$type_name]['linkfield'] = array(
+              '#type' => 'select',
+              '#title' => t('Select a link field'),
+              '#options' => $linkfields,
+              '#default_value' => variable_get(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'linkfield'), ''),
+              '#multiple' => FALSE,
+              '#required' => TRUE,
+            );
+          }
+
+          if(!empty($textfields)) {
+            $form['whami_source_adapter_' . $source_id][$type_name]['textfield'] = array(
+              '#type' => 'select',
+              '#title' => t('Select a text field'),
+              '#options' => $textfields,
+              '#default_value' => variable_get(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'textfield'), ''),
+              '#multiple' => FALSE,
+              '#required' => TRUE,
+            );
+          }
+
+        } //endif function_exists('content_fields')
+
+
+        if ( count($data_sources) ) {
+
+          $enabled_sources = variable_get(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'sources'), 0);
+          $enabled_sources = explode('+', $enabled_sources);
+
+          $form['whami_source_adapter_' . $source_id][$type_name]['sources'] = array(
+            '#type' => 'fieldset',
+            '#title' => t('whami data sources to request data from'),
+            '#collapsible' => TRUE,
+            '#collapsed' => FALSE,
+          );
+
+          foreach ($data_sources as $data_source => $value) {
+            $form['whami_source_adapter_' . $source_id][$type_name]['sources'][$data_source] = array(
+              '#type' => 'checkbox',
+              '#title' => t('%name', array('%name' => $data_source)),
+              '#description' => t('Get data from %name', array('%name' => $data_source)),
+              '#default_value' => is_numeric(array_search($data_source, $enabled_sources)),
+            );
+          }
+
+          $form['whami_source_adapter_' . $source_id][$type_name]['max_request_results'] = array(
+            '#type' => 'textfield',
+            '#title' => t('max. request results'),
+            '#default_value' => variable_get(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'max_request_results'), 10),
+            '#description' => t('The max. number of results for one single request from the underlying service'),
+            '#size' => 3,
+            '#maxlength' => 3,
+          );
+
         }
-      }
+
+      } //end loop over content types
     }
   }
 
@@ -127,6 +202,77 @@ function _whami_source_adapter_block_config_save($source_id, $delta, $edit = arr
         variable_set(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'radius'), $type['radius']);
         variable_set(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'max_results'), $type['max_results']);
       }
+      if (isset($type['linkfield']) && !empty($type['linkfield'])) {
+        variable_set(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'linkfield'), $type['linkfield']);
+      }
+
+      if (isset($type['textfield']) && !empty($type['textfield'])) {
+        variable_set(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'textfield'), $type['textfield']);
+      }
+
+      $sources = array();
+      if (isset($type['sources'])) {
+        foreach ($type['sources'] as $source => $data_source) {
+          if($type['sources'][$source]) $sources[$source] = $source;
+        }
+        variable_set(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'sources'), implode('+', $sources));
+        variable_set(_whami_source_adapter_conf_variable_name($source_id, $delta, $type_name, 'max_request_results'), $type['max_request_results']);
+        $sources = array();
+      }
+
     }
   }
+}
+
+function _whami_source_adapter_admin_settings_form($source_id) {
+  $form = array();
+
+  $form['content_types'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Enabled content types'),
+    '#description' => t('The content types for which this module will become active'),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+  );
+
+  $content_types = _whami_source_adapter_get_options_content_types();
+  foreach($content_types as $type => $name) {
+    $form['content_types']['WHAMI_SOURCE_ADAPTER_' . $source_id . '_CONTENT_TYPE_' . $type] = array(
+      '#type' => 'checkbox',
+      '#title' => t('%type', array('%type' => $name)),
+      '#default_value' => _whami_source_adapter_content_type_enabled($type, $source_id),
+    );
+  }
+
+  $form['WHAMI_SOURCE_ADAPTER_' . $source_id . '_FIELD_GEO'] = array(
+    '#type' => 'select',
+    '#title' => t('Field: Geospatial information'),
+    '#description' => t('The geo field from which geo spatial information will be used'),
+    '#default_value' => _whami_source_adapter_get_field_geo('geo', $source_id),
+    '#options' => _whami_source_adapter_get_options_fields('geo'),
+    '#multiple' => FALSE,
+    '#required' => TRUE,
+  );
+
+  $form['WHAMI_SOURCE_ADAPTER_' . $source_id . 'SEARCH_RADIUS'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Search radius'),
+    '#description' => t('The radius in meters that places will be searched in'),
+    '#default_value' => (int) _whami_source_adapter_search_radius($source_id),
+    '#size' => 10,
+    '#maxlength' => 10,
+    '#required' => TRUE,
+  );
+
+  $form['WHAMI_SOURCE_ADAPTER_' . $source_id . 'SEARCH_LIMIT'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Search limit'),
+    '#description' => t('The max. amount of places that will be requested'),
+    '#default_value' => (int) _whami_source_adapter_search_limit($source_id),
+    '#size' => 10,
+    '#maxlength' => 10,
+    '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
 }
