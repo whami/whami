@@ -37,6 +37,7 @@ function whami_source_adapter_parse_response($result, $source_id = '', $max_rows
   $sources = whami_build_data_sources($map);
 
   $result = array_slice($result, 0, $max_rows);
+  $results = array();
 
   foreach ($result as $key => $value) {
     if(!strlen($result[$key]['source_id'])) $result[$key]['source_id'] = $source_id;
@@ -70,6 +71,19 @@ function whami_source_adapter_parse_response($result, $source_id = '', $max_rows
       $result[$key]['url'] = substr($result[$key]['url'], 0, $linkshrink) . "...";
     }
 
+    //Set max geocoordinate detail
+    $latitude = (string) $result[$key]['latitude'];
+    if (strlen($latitude) > 11) {
+      $latitude = substr($latitude, 0, 11);
+    }
+    $result[$key]['latitude'] = $latitude;
+
+    $longitude = (string) $result[$key]['longitude'];
+    if (strlen($longitude) > 11) {
+      $longitude = substr($longitude, 0, 11);
+    }
+    $result[$key]['longitude'] = $longitude;
+
     if($render) {
 
 //      if(!$result[$key]['cached']) {
@@ -87,11 +101,23 @@ function whami_source_adapter_parse_response($result, $source_id = '', $max_rows
       }
 
 //      $result[$key]['infoBubble'] = theme('whami_infobubble', $result[$key], $sources[$result[$key]['source_id']]);
+//        $infoBubble .= strlen($client_place['teaser']) ? $client_place['teaser'] : theme('node', $node);
+      if (!strlen($result[$key]['infoBubble'])) {
+        $infoBubble = '<div class="whami-infoBubble-body">';
+        $infoBubble .= $result[$key]['teaser'];
+        $infoBubble .= '</div>';
+//        if(!$result[$key]['cached']) {
+//         $result[$key]['infoBubble'] = theme('whami_place_teaser', $result[$key], false);
+         $result[$key]['infoBubble'] = $infoBubble;
+//        }
+      }
+
     }
 
+    $results[$result[$key]['url_hash']] = $result[$key];
   }
 
-  return $result;
+  return $results;
 }
 
 /**
