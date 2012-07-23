@@ -28,3 +28,30 @@ function whami_source_adapter_facebook_menu() {
 
   return $items;
 }
+
+/**
+ * Implementation of hook_whami_sources_info()
+ */
+function whami_source_adapter_facebook_whami_source_info() {
+  global $base_url;
+  module_load_include('inc', 'whami_source_adapter');
+  $module_path = drupal_get_path('module', 'whami_source_adapter_facebook');
+
+  return array(
+      'source_id' => 'facebook',
+      'source_name' => 'Facebook',
+      'own_whami_content' => FALSE,
+      'source_image' => array(
+          'filepath' => url($base_url . '/' . $module_path . '/images/facebook-image.png'),
+      ),
+      'source_logo' => array(
+          'filepath' => url($base_url . '/' . $module_path . '/images/facebook-logo.png'),
+      ),
+      'map_display_icon' => url($base_url . '/' . $module_path . '/images/facebook-marker.gif'),
+      'titleshrink' => WHAMI_SOURCE_ADAPTER_TITLESHRINK,
+      'bodyshrink' => WHAMI_SOURCE_ADAPTER_BODYSHRINK,
+      'linkshrink' => WHAMI_SOURCE_ADAPTER_LINKSHRINK,
+      'maxRows' => WHAMI_SOURCE_ADAPTER_MAX_ROWS,
+      'maxRequestRows' => WHAMI_SOURCE_ADAPTER_MAX_REQUEST_ROWS,
+  );
+}

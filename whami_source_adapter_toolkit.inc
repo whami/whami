@@ -83,10 +83,10 @@ function whami_source_adapter_convert_geopoint_radius_bbox($lon, $lat, $radius) 
   $south = $south < -90 ? -90 : $south;
 
   return array(
-    'north' => $north,
-    'east' => $east,
-    'south' => $south,
-    'west' => $west,
+      'north' => $north,
+      'east' => $east,
+      'south' => $south,
+      'west' => $west,
   );
 }
 
@@ -127,38 +127,66 @@ function whami_get_datasource_nodes() {
  * @param $datasource_map
  */
 function whami_build_data_sources($datasource_map = array(), $render = true, $add_to_js = false) {
-  if (!count($datasource_map)) $datasource_map = whami_get_datasource_nodes();
-
-  foreach($datasource_map as $key => $value){
-    $datasource = array();
-    $datasource['source_id'] = $key;
-    $datasource['source_name'] = $datasource_map[$key]->title;
-    $datasource['own_whami_content'] = strcmp($value->field_whamiowncontent[0]['value'], 'yes') == 0 ? true : false;
-
-    $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . '/'. $datasource_map[$key]->field_sourceimage[0]['filepath']);
-//    $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . base_path() . $datasource_map[$key]->field_sourceimage[0]['filepath']);
-    $datasource['source_logo']['filepath'] = url($GLOBALS['base_url'] . '/' . $datasource_map[$key]->field_sourcelogo[0]['filepath']);
-    $datasource['map_display_icon'] = url($GLOBALS['base_url'] . '/' . $value->field_mapdisplayicon[0]['filepath']);
-
-    $datasource['titleshrink'] = isset($value->field_titleshrink[0]['value']) ? $value->field_titleshrink[0]['value'] : NULL;
-    $datasource['bodyshrink'] = isset($value->field_bodyshrink[0]['value']) ? $value->field_bodyshrink[0]['value'] : NULL;
-    $datasource['linkshrink'] = isset($value->field_linkshrink[0]['value']) ? $value->field_linkshrink[0]['value'] : NULL;
-
-    $datasource['maxRequestRows'] = isset($value->field_maxrequestrows[0]['value']) ? $value->field_maxrequestrows[0]['value'] : NULL;
-    $datasource['maxRows'] = $value->field_maxrows[0]['value'];
-
-    //Theming
-    if ($render) {
-      $datasource['source_image']['themed'] = theme_image($datasource['source_image']['filepath'], $datasource['source_name'], $datasource['source_name'], null, false);
-    }
-
-    $whami_datasources[$key] = $datasource;
+  if (empty($datasource_map)) {
+    $datasource_map = whami_get_datasource_nodes();
   }
 
-    if ($add_to_js) {
-      $whami_js_settings = array('data_sources' => $whami_datasources);
-      drupal_add_js(array('whami' => $whami_js_settings), "setting");
+  $whami_datasources = array();
+
+  if (!empty($datasource_map)) {
+    foreach($datasource_map as $key => $value){
+      $datasource = array();
+      $datasource['source_id'] = $key;
+      $datasource['source_name'] = $datasource_map[$key]->title;
+      $datasource['own_whami_content'] = strcmp($value->field_whamiowncontent[0]['value'], 'yes') == 0 ? true : false;
+
+      $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . '/'. $datasource_map[$key]->field_sourceimage[0]['filepath']);
+      // $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . base_path() . $datasource_map[$key]->field_sourceimage[0]['filepath']);
+      $datasource['source_logo']['filepath'] = url($GLOBALS['base_url'] . '/' . $datasource_map[$key]->field_sourcelogo[0]['filepath']);
+      $datasource['map_display_icon'] = url($GLOBALS['base_url'] . '/' . $value->field_mapdisplayicon[0]['filepath']);
+
+      $datasource['titleshrink'] = isset($value->field_titleshrink[0]['value']) ? $value->field_titleshrink[0]['value'] : NULL;
+      $datasource['bodyshrink'] = isset($value->field_bodyshrink[0]['value']) ? $value->field_bodyshrink[0]['value'] : NULL;
+      $datasource['linkshrink'] = isset($value->field_linkshrink[0]['value']) ? $value->field_linkshrink[0]['value'] : NULL;
+
+      $datasource['maxRequestRows'] = isset($value->field_maxrequestrows[0]['value']) ? $value->field_maxrequestrows[0]['value'] : NULL;
+      $datasource['maxRows'] = $value->field_maxrows[0]['value'];
+
+      //Theming
+      if ($render) {
+        $datasource['source_image']['themed'] = theme_image($datasource['source_image']['filepath'], $datasource['source_name'], $datasource['source_name'], null, false);
+      }
+
+      $whami_datasources[$key] = $datasource;
     }
+  }
+  else {
+    $whami_datasources = whami_get_datasource_modules();
+  }
+
+  if ($add_to_js) {
+    $whami_js_settings = array('data_sources' => $whami_datasources);
+    drupal_add_js(array('whami' => $whami_js_settings), "setting");
+  }
+
+  return $whami_datasources;
+}
+
+/**
+ * return an array of Whami Source Adapter sources keyed by source ID
+ */
+function whami_get_datasource_modules() {
+  $whami_datasources = array();
+  $sources = module_implements('whami_source_info');
+
+  if (!empty($sources)) {
+    foreach($sources as $source) {
+      $source_data = call_user_func($source . '_' . 'whami_source_info');
+      if (!empty($source_data)) {
+        $whami_datasources[$source_data['source_id']] = $source_data;
+      }
+    }
+  }
 
   return $whami_datasources;
 }
@@ -192,8 +220,8 @@ function whami_build_data_sources($datasource_map = array(), $render = true, $ad
 //}
 
 function whami_source_adapter_set_error_message($source_id, $method, $source_exists, $method_exists) {
-       if(!$source_exists)
-        drupal_set_message(t("The required whami data source '@name' is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
-//      else
-        drupal_set_message(t("The required method '@method' is not available. Check module whami_source_adapter_@name", array("@name" => $source_id, '@method' => $method)), 'error');
+  if(!$source_exists)
+    drupal_set_message(t("The required whami data source '@name' is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
+  //      else
+  drupal_set_message(t("The required method '@method' is not available. Check module whami_source_adapter_@name", array("@name" => $source_id, '@method' => $method)), 'error');
 }
