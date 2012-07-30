@@ -109,56 +109,40 @@ function whami_source_adapter_geopoint_radius_categories($lat, $lon, $radius, $l
  * @param $langcode
  */
 function whami_source_adapter_get_place_by_url($url, $source_id, $langcode = '', $session_id = '') {
-
   $params = array($url, $langcode);
   return whami_source_adapter_call_method('get_place_by_url', $params, $source_id, $langcode, 1, true, $session_id);
-
-//  $result = array();
-////  $sources = is_array($source_id) ?  $source_id : array($source_id);
-//
-//  $source_id = drupal_strtolower($source_id);
-//  $module_name = 'whami_source_adapter_' . $source_id;
-//  $function_name = $module_name . '_get_place_by_url';
-//  module_load_include('inc', $module_name);
-//
-//  if ($source_exists = module_exists($module_name) && $method_exists = function_exists($function_name)) {
-//    $result = $function_name($url, $langcode);
-//  }
-//  else {
-//    whami_source_adapter_set_error_message($source_id, 'get_place_by_url', $source_exists, $method_exists);
-//  }
-//
-//  return whami_source_adapter_parse_response($result, $source_id, 1);
 }
 
 /**
  * Call a generic function on a source adapter
  */
 function whami_source_adapter_call_method($method, $params, $source_id, $lang_code = '', $max_rows = 10, $render = true, $session_id = '') {
-  $results = array();
-  $sources = is_array($source_id) ?  $source_id : array($source_id);
+  if (isset($source_id)) {
+    $results = array();
+    $sources = is_array($source_id) ?  $source_id : array($source_id);
 
-  foreach($sources as $source_id) {
-    $source_id = drupal_strtolower($source_id);
-    $module_name = 'whami_source_adapter_' . $source_id;
-    $function_name = $module_name . '_' . $method;
-    module_load_include('inc', $module_name);
+    foreach($sources as $source_id) {
+      $source_id = drupal_strtolower($source_id);
+      $module_name = 'whami_source_adapter_' . $source_id;
+      $function_name = $module_name . '_' . $method;
+      module_load_include('inc', $module_name);
 
-    $function = 'whami_source_adapter_' . $source_id . '_' . $method;
+      $function = 'whami_source_adapter_' . $source_id . '_' . $method;
 
-    $source_exists = module_exists($module_name);
-    $method_exists = function_exists($function);
+      $source_exists = module_exists($module_name);
+      $method_exists = function_exists($function);
 
-    if ($source_exists && $method_exists) {
-      $result = call_user_func_array($function_name, $params);
-      $results = array_merge($results, $result);
+      if ($source_exists && $method_exists) {
+        $result = call_user_func_array($function_name, $params);
+        $results = array_merge($results, $result);
+      }
+      else {
+        whami_source_adapter_set_error_message($source_id, $method, $source_exists, $method_exists);
+      }
     }
-    else {
-      whami_source_adapter_set_error_message($source_id, $method, $source_exists, $method_exists);
-//      drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
-    }
+
+    return whami_source_adapter_parse_response($results, '', $max_rows, $render, $session_id);
   }
 
-  return whami_source_adapter_parse_response($results, '', $max_rows, $render, $session_id);
-
+  return array();
 }
