@@ -96,23 +96,26 @@ function whami_source_adapter_convert_geopoint_radius_bbox($lon, $lat, $radius) 
  * @return Map that associates each source with its categories
  */
 function whami_get_datasource_nodes() {
-  //Get All the Data Sources
+  $sources = array();
+
+  // Get All the Data Sources
   $query = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.type = 'whamidatasource'"));
-  while ($result =db_fetch_array($query)){
+  while ($result = db_fetch_array($query)) {
     $node = node_load($result);
     $sources[$node->field_programname[0]['value']] = $node;
   }
+
   //Get the nid for each category
   $query = db_query("SELECT nid, field_whamicategoryid_value FROM {content_type_whamicategories}");
-  while ($result = db_fetch_array($query)){
+  while ($result = db_fetch_array($query)) {
     $nids[$result['nid']] = $result['field_whamicategoryid_value'];
     $node = node_load($result['nid']);
     $categories[$result['field_whamicategoryid_value']] = $node;
   }
 
-  foreach ($sources as $key => $value){
+  foreach ($sources as $key => $value) {
     $cats = array();
-    foreach ($sources[$key]->field_whamicategories as $category => $nid){
+    foreach ($sources[$key]->field_whamicategories as $category => $nid) {
       $cats[$nids[$nid['nid']]] = $categories[$nids[$nid['nid']]];
     }
     $sources[$key]->whami_categories = $cats;
