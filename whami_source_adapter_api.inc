@@ -31,15 +31,9 @@
  * @return array
  *   Parsed response from the specific source adapter
  */
-function whami_source_adapter_bounding_box($bbox, $lan, $categories_id, $source_id, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
-  if (module_exists('whami_source_adapter_' . $source_id) && function_exists('whami_source_adapter_' . $source_id . '_bounding_box')) {
-    $function = 'whami_source_adapter_' . $source_id . '_bounding_box';
-    $result = $function($bbox, $lan, $max_request_rows);
-    return whami_source_adapter_parse_response($result, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $categories_id, $source_id, $session_id);
-  }
-  else {
-    drupal_set_message(t("The required Whami data source is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
-  }
+function whami_source_adapter_bounding_box($bbox, $langcode, $categories_id, $source_id, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
+  $params = array($bbox, $langcode, $max_request_rows);
+  return whami_source_adapter_call_method('bounding_box', $params, $source_id, $langcode, $max_rows, true, $session_id);
 }
 
 /**
