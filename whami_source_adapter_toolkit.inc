@@ -144,7 +144,6 @@ function whami_build_data_sources($datasource_map = array(), $render = true, $ad
       $datasource['own_whami_content'] = strcmp($value->field_whamiowncontent[0]['value'], 'yes') == 0 ? true : false;
 
       $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . '/'. $datasource_map[$key]->field_sourceimage[0]['filepath']);
-      // $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . base_path() . $datasource_map[$key]->field_sourceimage[0]['filepath']);
       $datasource['source_logo']['filepath'] = url($GLOBALS['base_url'] . '/' . $datasource_map[$key]->field_sourcelogo[0]['filepath']);
       $datasource['map_display_icon'] = url($GLOBALS['base_url'] . '/' . $value->field_mapdisplayicon[0]['filepath']);
 
@@ -155,7 +154,7 @@ function whami_build_data_sources($datasource_map = array(), $render = true, $ad
       $datasource['maxRequestRows'] = isset($value->field_maxrequestrows[0]['value']) ? $value->field_maxrequestrows[0]['value'] : NULL;
       $datasource['maxRows'] = $value->field_maxrows[0]['value'];
 
-      //Theming
+      // Theming
       if ($render) {
         $datasource['source_image']['themed'] = theme_image($datasource['source_image']['filepath'], $datasource['source_name'], $datasource['source_name'], null, false);
       }
@@ -164,7 +163,7 @@ function whami_build_data_sources($datasource_map = array(), $render = true, $ad
     }
   }
   else {
-    $whami_datasources = whami_get_datasource_modules();
+    $whami_datasources = whami_source_adapter_get_datasource_modules();
   }
 
   if ($add_to_js) {
@@ -178,7 +177,7 @@ function whami_build_data_sources($datasource_map = array(), $render = true, $ad
 /**
  * return an array of Whami Source Adapter sources keyed by source ID
  */
-function whami_get_datasource_modules() {
+function whami_source_adapter_get_datasource_modules() {
   $whami_datasources = array();
   $sources = module_implements('whami_source_info');
 
@@ -194,37 +193,25 @@ function whami_get_datasource_modules() {
   return $whami_datasources;
 }
 
-///**
-// * Get the configured DataSources in format that can be passed to the client.
-// *
-// * @param $add_to_js boolean optional If you want to add the datasource to the Drupal.settings object.
-// *      Default false, if you set to true, the following parameter whami_data_source_name must be provided.
-// * @param $whami_data_source_name optional The name of the datasource for whami internal content
-// */
-//function whami_get_datasources_in_client_format($add_to_js = false, $whami_data_source_name = '', $datasource_map = 0) {
-//  $whami_datasources = array();
-//
-//  if (!$datasource_map) $datasource_map = whami_get_datasource_category_mapping();
-//  foreach($datasource_map as $key => $value) {
-//    $datasource = array();
-//    $datasource['source_name'] = $datasource_map[$key]->title;
-//    $datasource['source_image']['filepath'] = url($GLOBALS['base_url'] . base_path() . $datasource_map[$key]->field_sourceimage[0]['filepath']);
-//    $datasource['own_whami_content'] = $value->field_whamiowncontent[0]['value'];
-//    $datasource['map_display_icon'] = url($GLOBALS['base_url'] . base_path() . $value->field_mapdisplayicon[0]['filepath']);
-//    $whami_datasources[$datasource_map[$key]->title] = $datasource;
-//  }
-//
-//  if ($add_to_js) {
-//    $whami_js_settings = array('whami_source_name' => $whami_data_source_name, 'data_sources' => $whami_datasources);
-//    drupal_add_js(array('whami' => $whami_js_settings), "setting");
-//  }
-//
-//  return $whami_datasources;
-//}
-
+/**
+ *
+ * @param unknown_type $source_id
+ * @param unknown_type $method
+ * @param unknown_type $source_exists
+ * @param unknown_type $method_exists
+ */
 function whami_source_adapter_set_error_message($source_id, $method, $source_exists, $method_exists) {
-  if(!$source_exists)
-    drupal_set_message(t("The required whami data source '@name' is not available. Please install the whami_source_adapter_@name module", array("@name" => $source_id)), 'error');
-  //      else
-  drupal_set_message(t("The required method '@method' is not available. Check module whami_source_adapter_@name", array("@name" => $source_id, '@method' => $method)), 'error');
+  if (isset($source_id)) {
+    $args = array("@name" => $source_id, '@method' => $method);
+
+    if(!$source_exists) {
+      $msg = t("The required whami data source '@name' is not available. Please install the whami_source_adapter_@name module", $args);
+      drupal_set_message($msg, 'error');
+    }
+
+    if (isset($method)) {
+      $msg = t("The required method '@method' is not available. Check module whami_source_adapter_@name", $args);
+      drupal_set_message($msg, 'error');
+    }
+  }
 }
