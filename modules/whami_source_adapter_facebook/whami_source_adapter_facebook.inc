@@ -60,7 +60,7 @@ function whami_get_facebook_places_popular($lat, $lon, $radius, $maxRequestRows,
   $param['fields'] = 'id,name,picture,link,location,likes,checkins,category,about,description';
   $param['type'] = 'place';
   $param['center'] = $lat . ',' . $lon;
-  $param['distance'] = $radius;
+  $param['distance'] = (int) $radius;
   $param['limit'] = $maxRequestRows;
 
   $fb_query_data = whami_execute_graph_api_request('search', $param);
