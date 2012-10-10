@@ -16,6 +16,9 @@ function whami_set_map_settings($mapid, $mapType, $cluster = false) {
     drupal_add_js(array('whami' => $whami_js_settings), "setting");
     drupal_add_js(drupal_get_path('module', 'whami_map_toolkit') . '/js/' . 'whami_map_toolkit.js', 'module');
 
+    //TODO: Call Hook whami_map_toolkit_add_js
+    //-> whami_zoom_add_js
+
 //    if(function_exists('whami_checkin_add_js')) : whami_checkin_add_js(); endif;
 //    if(function_exists('whami_places_add_js')) : whami_places_add_js(); endif;
 //    if(function_exists('whami_facebook_add_js')) : whami_facebook_add_js(); endif;
