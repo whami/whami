@@ -17,8 +17,8 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
   switch ($op) {
     case 'list':
       return array(
-      'whami_wikipedia_place_by_url' => array('info' => t('whami Source Adapter: Wikipedia info'), 'cache' => BLOCK_CACHE_PER_PAGE),
-      'whami_wikipedia_places_nearby' => array('info' => t('whami Source Adapter: Wikipedia nearby'), 'cache' => BLOCK_CACHE_PER_PAGE),
+        'whami_wikipedia_place_by_url' => array('info' => t('whami Source Adapter: Wikipedia info'), 'cache' => BLOCK_CACHE_PER_PAGE),
+        'whami_wikipedia_places_nearby' => array('info' => t('whami Source Adapter: Wikipedia nearby'), 'cache' => BLOCK_CACHE_PER_PAGE),
       );
 
     case 'configure':
@@ -89,10 +89,10 @@ function whami_source_adapter_wikipedia_block($op = 'list', $delta = 0, $edit = 
  */
 function whami_source_adapter_wikipedia_theme($existing, $type, $theme, $path) {
   return array(
-      'whami_source_adapter_wikipedia_content' => array(
-          'arguments' => array('wikipedia_data' => array()),
-          'template' => 'whami_source_adapter_wikipedia',
-      ),
+    'whami_source_adapter_wikipedia_content' => array(
+      'arguments' => array('wikipedia_data' => array()),
+      'template' => 'whami_source_adapter_wikipedia',
+    ),
   );
 }
 
@@ -104,8 +104,8 @@ function template_preprocess_whami_source_adapter_wikipedia_content(&$variables)
     $list_items = array();
 
     $list_attributes = array(
-        'class' => 'whami-source-adapter-wikipedia-list',
-        'style' => 'list-style: none',
+      'class' => 'whami-source-adapter-wikipedia-list',
+      'style' => 'list-style: none',
     );
 
     foreach ($variables['wikipedia_data'] as $key => $entry) {
@@ -114,9 +114,9 @@ function template_preprocess_whami_source_adapter_wikipedia_content(&$variables)
       $logo_path = drupal_get_path('module', 'whami_source_adapter_wikipedia') . '/images/' . 'wikipedia-logo.png';
 
       $logo_attributes = array(
-          'width' => '34px',
-          'height' => '34px',
-          'style' => 'float: right',
+        'width' => '34px',
+        'height' => '34px',
+        'style' => 'float: right',
       );
 
       $item_content .= l(theme('image', $logo_path, $entry['title'], $entry['title'], $logo_attributes), $entry['full_url'], array('html' => TRUE));
@@ -124,10 +124,10 @@ function template_preprocess_whami_source_adapter_wikipedia_content(&$variables)
       $item_content .= '<p>' . check_plain($entry['body']) . '</p>';
 
       $list_items[] = array(
-          'data' => $item_content,
-          'class' => 'whami-source-adapter-wikipedia-item',
-          'id' => 'whami-source-adapter-wikipedia-item-' . $key,
-          'style' => 'list-style: none',
+        'data' => $item_content,
+        'class' => 'whami-source-adapter-wikipedia-item',
+        'id' => 'whami-source-adapter-wikipedia-item-' . $key,
+        'style' => 'list-style: none',
       );
 
       $variables['license'] = $entry['license'];
@@ -140,26 +140,10 @@ function template_preprocess_whami_source_adapter_wikipedia_content(&$variables)
 /**
  * Implementation of hook_whami_sources_info()
  */
-function whami_source_adapter_wikipedia_whami_source_info() {
-  global $base_url;
-  module_load_include('inc', 'whami_source_adapter');
-  $module_path = drupal_get_path('module', 'whami_source_adapter_wikipedia');
-
-  return array(
-      'source_id' => 'wikipedia',
-      'source_name' => 'Wikipedia',
-      'own_whami_content' => FALSE,
-      'source_image' => array(
-          'filepath' => url($base_url . '/' . $module_path . '/images/wikipedia-image.jpg'),
-      ),
-      'source_logo' => array(
-          'filepath' => url($base_url . '/' . $module_path . '/images/wikipedia-logo.png'),
-      ),
-      'map_display_icon' => url($base_url . '/' . $module_path . '/images/wikipedia-marker.png'),
-      'titleshrink' => WHAMI_SOURCE_ADAPTER_TITLESHRINK,
-      'bodyshrink' => WHAMI_SOURCE_ADAPTER_BODYSHRINK,
-      'linkshrink' => WHAMI_SOURCE_ADAPTER_LINKSHRINK,
-      'maxRows' => WHAMI_SOURCE_ADAPTER_MAX_ROWS,
-      'maxRequestRows' => WHAMI_SOURCE_ADAPTER_MAX_REQUEST_ROWS,
-  );
+function whami_source_adapter_wikipedia_whami_source_info($source) {
+  $source['type'] = 'Article';
+  $source['license'] = '<div class="whami_wiki_licence">';
+  $source['license'] .= t('All text is available under the terms of the GNU Free Documentation License.', array(), $langcode);
+  $source['license'] .= '</div>';
+  return $source;
 }

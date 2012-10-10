@@ -65,25 +65,25 @@ function whami_source_adapter_panoramio_block($op = 'list', $delta = 0, $edit = 
  */
 function whami_source_adapter_panoramio_theme($existing, $type, $theme, $path) {
   return array(
-      'whami_panoramio_table' => array(
-          'template' => 'whami_panoramio_table',
-          'arguments' => array(
-              'result' => array(),
-              'imgSize_big' => 'medium',
-              'imgSize_preview' => 'square',
-          ),
+    'whami_panoramio_table' => array(
+      'template' => 'whami_panoramio_table',
+      'arguments' => array(
+        'result' => array(),
+        'imgSize_big' => 'medium',
+        'imgSize_preview' => 'square',
       ),
-      'whami_panoramio_pic' => array(
-          'template' => 'whami_panoramio_pic',
-          'arguments' => array(
-              'link' => '',
-              'link_preview' => '',
-              'title' => '',
-              'pic_page_url' => '',
-              'owner_name' => '',
-              'owner_url' => '',
-          ),
+    ),
+    'whami_panoramio_pic' => array(
+      'template' => 'whami_panoramio_pic',
+      'arguments' => array(
+        'link' => '',
+        'link_preview' => '',
+        'title' => '',
+        'pic_page_url' => '',
+        'owner_name' => '',
+        'owner_url' => '',
       ),
+    ),
   );
 }
 
@@ -150,26 +150,23 @@ function template_preprocess_whami_panoramio_pic(&$variables) {
 /**
  * Implementation of hook_whami_sources_info()
  */
-function whami_source_adapter_panoramio_whami_source_info() {
+function whami_source_adapter_panoramio_whami_source_info($source) {
   global $base_url;
-  module_load_include('inc', 'whami_source_adapter');
+//  module_load_include('inc', 'whami_source_adapter');
   $module_path = drupal_get_path('module', 'whami_source_adapter_panoramio');
 
-  return array(
-      'source_id' => 'panoramio',
-      'source_name' => 'Panoramio',
-      'own_whami_content' => FALSE,
-      'source_image' => array(
+  $source['source_image'] = array(
           'filepath' => url($base_url . '/' . $module_path . '/images/panoramio-image.png'),
-      ),
-      'source_logo' => array(
-          'filepath' => url($base_url . '/' . $module_path . '/images/panoramio-logo.png'),
-      ),
-      'map_display_icon' => url($base_url . '/' . $module_path . '/images/panoramio-marker.png'),
-      'titleshrink' => WHAMI_SOURCE_ADAPTER_TITLESHRINK,
-      'bodyshrink' => WHAMI_SOURCE_ADAPTER_BODYSHRINK,
-      'linkshrink' => WHAMI_SOURCE_ADAPTER_LINKSHRINK,
-      'maxRows' => WHAMI_SOURCE_ADAPTER_MAX_ROWS,
-      'maxRequestRows' => WHAMI_SOURCE_ADAPTER_MAX_REQUEST_ROWS,
+      );
+  $source['source_logo'] = array(
+      'filepath' => url($base_url . '/' . $module_path . '/images/panoramio-logo.png'),
   );
+  $source['map_display_icon'] = url($base_url . '/' . $module_path . '/images/panoramio-marker.png');
+
+  $source['license'] = '<div class="whami_wiki_licence">';
+  $source['license'] .= t('Photos provided by Panoramio are under the copyright of their owners.');
+  $source['license'] .= '</div>';
+
+  $source['type'] = 'Photo';
+  return $source;
 }

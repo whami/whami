@@ -31,9 +31,9 @@
  * @return array
  *   Parsed response from the specific source adapter
  */
-function whami_source_adapter_bounding_box($bbox, $langcode, $categories_id, $source_id, $max_rows, $titleshrink, $bodyshrink, $linkshrink, $max_request_rows, $session_id) {
+function whami_source_adapter_bounding_box($bbox, $source_id, $langcode, $max_rows = 5, $max_request_rows = 5, $session_id = '') {
   $params = array($bbox, $langcode, $max_request_rows);
-  return whami_source_adapter_call_method('bounding_box', $params, $source_id, $langcode, $max_rows, true, $session_id);
+  return whami_source_adapter_call_method('bounding_box', $params, $source_id, $langcode, $max_rows, true, true, $session_id);
 }
 
 /**
@@ -50,7 +50,7 @@ function whami_source_adapter_bounding_box($bbox, $langcode, $categories_id, $so
  */
 function whami_source_adapter_geopoint_radius($lat, $lon, $radius, $source_id, $langcode = '',  $max_rows = 5, $max_request_rows = 5, $session_id = '') {
   $params = array($lat, $lon, $radius, $langcode, $max_request_rows);
-  return whami_source_adapter_call_method('geopoint_radius', $params, $source_id, $langcode, $max_rows, true, $session_id);
+  return whami_source_adapter_call_method('geopoint_radius', $params, $source_id, $langcode, $max_rows, true, true, $session_id);
 }
 
 /**
@@ -104,39 +104,50 @@ function whami_source_adapter_geopoint_radius_categories($lat, $lon, $radius, $l
  */
 function whami_source_adapter_get_place_by_url($url, $source_id, $langcode = '', $session_id = '') {
   $params = array($url, $langcode);
-  return whami_source_adapter_call_method('get_place_by_url', $params, $source_id, $langcode, 1, true, $session_id);
+  return whami_source_adapter_call_method('get_place_by_url', $params, $source_id, $langcode, 1, true, true, $session_id);
 }
 
 /**
  * Call a generic function on a source adapter
  */
-function whami_source_adapter_call_method($method, $params, $source_id, $lang_code = '', $max_rows = 10, $render = true, $session_id = '') {
-  if (isset($source_id)) {
-    $results = array();
-    $sources = is_array($source_id) ?  $source_id : array($source_id);
+function whami_source_adapter_call_method($method, $params, $source_id, $lang_code = '', $max_rows = 10, $render = true, $parse = true, $session_id = '') {
+  $results = array();
+  $sources = is_array($source_id) ?  $source_id : array($source_id);
+  $params = is_array($params) ?  $params : array($params);
 
-    foreach($sources as $source_id) {
-      $source_id = drupal_strtolower($source_id);
-      $module_name = 'whami_source_adapter_' . $source_id;
-      $function_name = $module_name . '_' . $method;
-      module_load_include('inc', $module_name);
+  //http://www.lullabot.com/articles/a-beginners-guide-to-caching-data
+  static $method_results = array();
+  $param_hash = implode(':', $params) . implode(':', $sources) . $GLOBALS['language']->language;
+  $param_hash = hash("md5", $param_hash);
+  if($method_results[$param_hash])
+    return $method_results[$param_hash];
 
-      $function = 'whami_source_adapter_' . $source_id . '_' . $method;
+  foreach($sources as $source_id) {
+    $source_id = drupal_strtolower($source_id);
+    $module_name = 'whami_source_adapter_' . $source_id;
+    $function_name = $module_name . '_' . $method;
+    module_load_include('inc', $module_name);
 
-      $source_exists = module_exists($module_name);
-      $method_exists = function_exists($function);
+//    $function = 'whami_source_adapter_' . $source_id . '_' . $method;
 
-      if ($source_exists && $method_exists) {
-        $result = call_user_func_array($function_name, $params);
-        $results = array_merge($results, $result);
-      }
-      else {
-        whami_source_adapter_set_error_message($source_id, $method, $source_exists, $method_exists);
-      }
+    $source_exists = module_exists($module_name);
+    $method_exists = function_exists($function_name);
+
+    if ($source_exists && $method_exists) {
+      $result = call_user_func_array($function_name, $params);
+      if(is_array($result) && count($result)) $results = array_merge($results, $result);
     }
-
-    return whami_source_adapter_parse_response($results, '', $max_rows, $render, $session_id);
+    else {
+      whami_source_adapter_set_error_message($source_id, $method, $source_exists, $method_exists);
+    }
   }
 
-  return array();
+//if($parse) {
+    if(is_array($result) && count($result))
+      $method_results[$param_hash] = whami_source_adapter_parse_response($results, '', $max_rows, $render, $session_id);
+//}
+
+  return $method_results[$param_hash];
+
 }
+
