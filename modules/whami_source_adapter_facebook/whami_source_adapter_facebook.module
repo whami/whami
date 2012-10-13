@@ -1,10 +1,6 @@
 <?php
 module_load_include('inc', 'whami_source_adapter_facebook', 'whami_source_adapter_facebook_toolkit');
 
-if(file_exists(drupal_get_path('module', 'whami_source_adapter_facebook') . '/whami_facebook_custom.inc')) {
-  module_load_include('inc', 'whami_source_adapter_facebook', 'whami_facebook_custom');
-}
-
 /**
  * Implementation of hook_menu()
  */
