@@ -6,8 +6,7 @@ function whami_source_facebook_get_fb_token($type = 'user') {
   global $_fb;
 
   if (isset($_fb)) {
-
-    if(!strcmp($type, 'user')) {
+    if (!strcmp($type, 'user')) {
       $facebook_user = fb_facebook_user();
     }
 
@@ -16,15 +15,15 @@ function whami_source_facebook_get_fb_token($type = 'user') {
   elseif ($GLOBALS['whami_fb_access_token']) {
     $fb_access_token = $GLOBALS['whami_fb_access_token'];
   }
+  elseif (module_exists('whami_facebook_client')) {
+    $fb_access_token = whami_facebook_client_token();
+  }
   else {
     module_load_include('inc', 'whami_source_adapter_facebook', 'whami_source_adapter_facebook.admin');
     $fb_access_token = _whami_source_adapter_facebook_tmp_token();
   }
 
-  if (strlen($fb_access_token))
-    return $fb_access_token;
-  else
-    return false;
+  return strlen($fb_access_token) ? $fb_access_token : FALSE;
 }
 
 function whami_facebook_get_fb_token_infos($fb_access_token = NULL, $type = NULL) {

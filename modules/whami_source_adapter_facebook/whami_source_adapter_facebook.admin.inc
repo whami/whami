@@ -1,4 +1,5 @@
 <?php
+
 define('WHAMI_SOURCE_ADAPTER_FACEBOOK_CONTENT_TYPE', 'whami_source_adapter_facebook_content_type');
 define('WHAMI_SOURCE_ADAPTER_FACEBOOK_FIELD_GEO', 'whami_source_adapter_facebook_field_geo');
 define('WHAMI_SOURCE_ADAPTER_FACEBOOK_SEARCH_RADIUS', 'whami_source_adapter_facebook_search_radius');
@@ -7,7 +8,6 @@ define('WHAMI_SOURCE_ADAPTER_FACEBOOK_DEBUG', 'debug');
 define('WHAMI_SOURCE_ADAPTER_FACEBOOK_TMP_TOKEN', 'tmp_token');
 
 function _whami_source_adapter_facebook_admin() {
-
   $form = array();
 
   $form[_whami_source_adapter_facebook_get_user_setting(WHAMI_SOURCE_ADAPTER_FACEBOOK_DEBUG)] = array(
@@ -85,15 +85,11 @@ function _whami_source_adapter_facebook_search_limit() {
 }
 
 function _whami_source_adapter_facebook_debug() {
-  return variable_get(
-     _whami_source_adapter_facebook_get_user_setting(WHAMI_SOURCE_ADAPTER_FACEBOOK_DEBUG), FALSE
-  );
+  return variable_get(_whami_source_adapter_facebook_get_user_setting(WHAMI_SOURCE_ADAPTER_FACEBOOK_DEBUG), FALSE);
 }
 
 function _whami_source_adapter_facebook_tmp_token() {
-  return variable_get(
-    _whami_source_adapter_facebook_get_user_setting(WHAMI_SOURCE_ADAPTER_FACEBOOK_TMP_TOKEN), ''
-  );
+  return variable_get(_whami_source_adapter_facebook_get_user_setting(WHAMI_SOURCE_ADAPTER_FACEBOOK_TMP_TOKEN), '');
 }
 
 function _whami_source_adapter_facebook_get_options_content_types() {
@@ -130,3 +126,4 @@ function _whami_source_adapter_facebook_get_user_setting($variable_name, $uid = 
   $uid = $uid ? $uid : $GLOBALS['user']->uid;
   return   'whami_source_adapter_facebook' . '-uid-' . $uid . '_' . $variable_name;
 }
+
