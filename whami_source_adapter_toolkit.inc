@@ -125,6 +125,11 @@ function whami_build_data_sources($whami_datasources = array(), $render = true, 
  */
 function whami_get_datasource_nodes($datasources = array()) {
 
+  $whamisource_type_exists = node_get_types('name', array('type' => 'whamidatasource'));
+  $whamicat_type_exists = node_get_types('name', array('type' => 'whamicategories'));
+
+  if(!$whamisource_type_exists || !$whamicat_type_exists) return $datasources;
+
   // Get All the Data Sources
   $sources = array();
   $query = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.type = 'whamidatasource'"));
