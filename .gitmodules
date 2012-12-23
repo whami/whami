@@ -1,3 +1,6 @@
 [submodule "contrib/whami_source_adapter"]
 	path = contrib/whami_source_adapter
 	url = http://git.drupal.org/project/whami_source_adapter.git
+[submodule "contrib/whami_map_toolkit"]
+	path = contrib/whami_map_toolkit
+	url = http://git.drupal.org/project/whami_map_toolkit.git
