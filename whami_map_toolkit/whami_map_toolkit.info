@@ -1,0 +1,7 @@
+; $Id:$ 
+name = whami Map Toolkit
+description = whami Add-Ons for map modules
+core = 6.x
+package = whami
+dependencies[] = whami_source_adapter
+dependencies[] = mapstraction_cck

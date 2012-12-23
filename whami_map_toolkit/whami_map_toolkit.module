@@ -1,0 +1,92 @@
+<?php
+
+/**
+ *
+ * Implementation of hook_menu()
+ */
+function whami_map_toolkit_menu() {
+  $items = array();
+
+  $items['admin/settings/whami_map_toolkit'] = array(
+      'title' => t('whami Map Toolkit settings'),
+      'description' => t('configure the settings for your maps'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('_whami_map_toolkit_admin_settings_form'),
+      'access arguments' => array('access administration pages'),
+      'file' => 'whami_map_toolkit.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_mapstraction_cck_node_map_rendered
+ *
+ * @param $node
+ * @param $field_name
+ * @param $mapid
+ */
+function whami_map_toolkit_mapstraction_cck_node_map_rendered($node, $field_name, $mapid) {
+
+  module_load_include('inc', 'whami_map_toolkit', 'whami_map_toolkit.admin');
+  $enabled_types = _whami_map_toolkit_get_enabled_content_types();
+
+  if ( array_search($node->type, $enabled_types) ) {
+
+    module_load_include('inc', 'whami_map_toolkit');
+
+    //Get place of node map
+    if (function_exists('whami_get_place_for_nid')) {
+      $client_place = whami_get_place_for_nid($node);
+    }
+    if (!$client_place) {
+      $client_place = whami_create_place_from_node($node, $field_name, $mapid);
+      $whami_js_settings['places'][$client_place['url_hash']]['place_data'] = $client_place;
+    }
+
+    $node_places[$client_place['url_hash']] = $client_place;
+
+    $radius = _whami_map_toolkit_conf_variable_value('SEARCH_RADIUS', 5);
+    if (function_exists('whami_source_adapter_geopoint_radius')) {
+
+      $sources = _whami_map_toolkit_get_enabled_sources();
+      $max_results = _whami_map_toolkit_conf_variable_value('MAX_RESULTS', 0);
+      $max_request = _whami_map_toolkit_conf_variable_value('MAX_REQUEST', 0);
+
+      if(!empty($sources) && $max_results > 0) {
+        $source_places = whami_source_adapter_geopoint_radius(
+          $client_place['latitude'],
+          $client_place['longitude'],
+          $radius,
+          $sources,
+          '', //$langcode
+          $max_results,
+          $max_request
+        );
+
+        if (count($source_places))
+          $node_places = array_merge($node_places, $source_places);
+
+        //TODO: put configured parameters above in Client/JS-context
+        // _whami_map_toolkit_get_enabled_sources(), MAX_RESULTS, MAX_REQUEST
+        // This makes it possible for i.e. whami_zoom to repeat
+        // the call to whami_source_adapter_geopoint_radius on every map pan
+        $whami_js_settings['enabled_sources'] = array( $mapid => $sources);
+      }
+
+    }
+
+    //Add place to page in Client/JS-context
+    $whami_js_settings['map_places'] = array( $mapid => array_keys($node_places) );
+    $whami_js_settings['node_map_place'] = array( $mapid => $client_place);
+
+    $whami_js_settings['map_radius'] = array( $mapid => $radius);
+
+    drupal_add_js(array('whami' => $whami_js_settings), "setting");
+
+    whami_set_map_settings($mapid, 'node_view');
+
+    return 'whami_map_toolkit_init';
+
+  } //endif ($node->type enabled)
+}
