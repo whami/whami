@@ -1,7 +1,0 @@
-; whami Source Adapter - Panoramio
-name = whami Source Adapter - Panoramio
-description = Provides a Source Adapter for the Google Panoramio web service.
-core = 6.x
-package = whami
-dependencies[] = lightbox2
-dependencies[] = whami_source_adapter
