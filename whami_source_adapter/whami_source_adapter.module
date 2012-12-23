@@ -1,0 +1,281 @@
+<?php
+/**
+ * @file
+ * whami Source Adapter module
+ */
+module_load_include('inc', 'whami_source_adapter', 'whami_source_adapter_api');
+module_load_include('inc', 'whami_source_adapter', 'whami_source_adapter_toolkit');
+
+/**
+ *  Function that parses the results from an specific source adapter
+ *  to the main format
+ *
+ * @param array $result
+ *   result
+ * @param int $max_rows
+ *   maximum rows
+ * @param int $titleshrink
+ *   titleshrink
+ * @param int $bodyshrink
+ *   bodyshrink
+ * @param int $linkshrink
+ *   linkshrink
+ * @param string $categories_id
+ *   Categories
+ * @param string $source_id
+ *   source id
+ * @param string $session_id
+ *   sesion id
+ *
+ * @return array
+ *   Parsed response for the Source Adapter
+ */
+function whami_source_adapter_parse_response($result, $source_id = '', $max_rows = 10, $render = true, $session_id = '') { //$categories_id = NULL
+
+  $sources = whami_build_data_sources();
+
+  $result = array_slice($result, 0, $max_rows);
+  $results = array();
+
+  static $cached_places = array();
+
+  foreach ($result as $key => $value) {
+
+    if(!strlen($result[$key]['source_id'])) $result[$key]['source_id'] = $source_id;
+    if(!strlen($result[$key]['url'])) $result[$key]['url'] = $result[$key]['full_url'];
+    if(!strlen($result[$key]['node_url'])) $result[$key]['node_url'] = $result[$key]['full_url'];
+    if(!strlen($result[$key]['url_hash'])) $result[$key]['url_hash'] = hash("md5", $result[$key]['full_url']);
+    if(!strlen($result[$key]['type'])) $result[$key]['type'] = $sources[$result[$key]['source_id']]['type'];
+    if(!strlen($result[$key]['license'])) $result[$key]['license'] = $sources[$value['source_id']]['license'];
+
+    if(strlen($session_id)) $result[$key]['sid'] = $session_id;
+
+    $result[$key]['source_name'] = $sources[$result[$key]['source_id']]['source_name'];
+    $result[$key]['own_whami_content'] = $sources[$result[$key]['source_id']]['own_whami_content']; //$sources[$value['sourceID']]->field_whamiowncontent[0]['value'];
+
+    $result[$key]['source_image'] = $sources[$result[$key]['source_id']]['source_image']['filepath'];//$sources[$value['sourceID']]->field_sourceimage[0];
+    $result[$key]['source_logo'] = $sources[$result[$key]['source_id']]['source_logo']['filepath'];
+    $result[$key]['map_display_icon'] =  $sources[$result[$key]['source_id']]['map_display_icon']; //$sources[$value['sourceID']]->field_mapdisplayicon[0];
+
+    //$result[$key]['categoryID'] = $categories_id;
+
+    //Shrink fields
+    $titleshrink = $sources[$result[$key]['source_id']]['titleshrink'];
+    $bodyshrink = $sources[$result[$key]['source_id']]['bodyshrink'];
+    $linkshrink = $sources[$result[$key]['source_id']]['linkshrink'];
+
+    if (strlen($result[$key]['title']) > $titleshrink && $titleshrink > 1) {
+     $result[$key]['title'] = substr($result[$key]['title'], 0, $titleshrink) . "...";
+    }
+    $allowed_tags = '<a> <img> <div> <table> <tr> <td> <ul> <ol> <li> <em> <i> <strong> <b> <cite> <code>';
+    $result[$key]['body'] = strip_tags($result[$key]['body'], $allowed_tags);
+    if (strlen($result[$key]['body']) > $bodyshrink && $bodyshrink > 1) {
+    	$result[$key]['body'] = drupal_substr($result[$key]['body'], 0, $bodyshrink) . "...";
+//    	$result[$key]['body'] = check_markup($result[$key]['body'], 1, FALSE);
+    }
+    if (strlen($result[$key]['url']) > $linkshrink && $linkshrink > 1) {
+      $result[$key]['url'] = substr($result[$key]['url'], 0, $linkshrink) . "...";
+    }
+
+    //Set max geocoordinate detail
+    $latitude = (string) $result[$key]['latitude'];
+    if (strlen($latitude) > 11) {
+      $latitude = substr($latitude, 0, 11);
+    }
+    $result[$key]['latitude'] = $latitude;
+
+    $longitude = (string) $result[$key]['longitude'];
+    if (strlen($longitude) > 11) {
+      $longitude = substr($longitude, 0, 11);
+    }
+    $result[$key]['longitude'] = $longitude;
+
+    $results[$result[$key]['url_hash']] = $result[$key];
+  } //End Loop over results
+
+//    if (!strlen($session_id)) {
+//      $sessionID = whami_get_sessionID();
+//      whami_insert_sid_data($results, $sessionID);
+//    }
+
+  //Give modules a chance to modify the result
+  foreach (module_implements('whami_source_adapter_result') as $module) {
+    $function = $module . '_' . 'whami_source_adapter_result';
+    $results = $function($results, $session_id);
+  }
+
+//  $data = whami_complete_sid_data($data);
+
+    if($render) {
+      //Give modules a chance to modify the result
+      foreach (module_implements('whami_source_adapter_render') as $module) {
+        $function = $module . '_' . 'whami_source_adapter_render';
+        $results = $function($results, $session_id);
+      }
+
+      //Add place to page in Client/JS-context
+      foreach ($results as $key => $value) {
+        if (!strlen($results[$key]['teaser'])) {
+           $results[$key]['teaser'] = theme('whami_place_preview', $results[$key]);
+           $results[$key]['whami_place_preview'] = $results[$key]['teaser'];
+        }
+        else {
+           $results[$key]['teaser'] = theme('whami_place_description', $results[$key]);
+           $results[$key]['whami_place_description'] = $results[$key]['teaser'];
+        }
+
+        if (!strlen($results[$key]['infoBubble'])) {
+//          $infoBubble = '<div class="whami-infoBubble-body">';
+//          $infoBubble .= $results[$key]['teaser'];
+//          $infoBubble .= '</div>';
+
+//           $results[$key]['infoBubble'] = $infoBubble;
+
+          $results[$key]['infoBubble'] = theme('whami_place_bubble', $results[$key]); //theme('node', $node);
+        }
+
+        if (!$cached_places[$key]) {
+          $cached_places[$key] = $results[$key];
+          $whami_js_settings['places'][$key]['place_data'] = $results[$key];
+        }
+
+      }
+
+      drupal_add_js(array('whami' => $whami_js_settings), "setting");
+      drupal_add_css(drupal_get_path('module', 'whami_source_adapter') . '/theme/' . 'whami_source_adapter-style.css', 'module');
+    }
+
+  return $results;
+}
+
+/**
+ * Implementation of hook_block().
+ */
+function whami_source_adapter_block($op = 'list', $delta = 0, $edit = array()) {
+  module_load_include('inc', 'whami_source_adapter');
+
+  switch ($op) {
+    case 'list':
+      return array(
+        'whami_place_by_url' => array('info' => t('whami Source Adapter: Place info'), 'cache' => BLOCK_CACHE_PER_PAGE),
+        'whami_places_nearby' => array('info' => t('whami Source Adapter: Places nearby'), 'cache' => BLOCK_CACHE_PER_PAGE),
+      );
+
+    case 'configure':
+      if(strcmp($delta, 'whami_place_by_url') == 0) {
+        return _whami_source_adapter_block_config_form('whami', $delta, array("linkfield", "textfield"));
+      }
+      if(strcmp($delta, 'whami_places_nearby') == 0) {
+        return _whami_source_adapter_block_config_form('whami', $delta, array("geofield", "sources"));
+      }
+
+    case 'save':
+      _whami_source_adapter_block_config_save('whami', $delta, $edit);
+      break;
+
+    case 'view':
+      $block = array();
+
+      $nid = check_plain(arg(1));
+      if (strcmp(arg(0), 'node') == 0 && is_numeric($nid) && !arg(2)) {
+        $node = node_load($nid);
+
+        if ($node !== FALSE) {
+
+          //Check if the block is activated for this content type
+          if( !variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'active'), false) ) return;
+
+          $langcode = $GLOBALS['language']->language;
+          $node_lang = strlen($node->language) ? $node->language : $langcode;
+
+          if(strcmp($delta, 'whami_place_by_url') == 0) {
+
+            $link_field_name = variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'linkfield'), '');
+            $text_field_name = variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'textfield'), '');
+
+            if (strlen($link_field_name) && strlen($text_field_name)) {
+              $wiki_link = $node->{$link_field_name}[0]['url'];
+              $wiki_link = html_entity_decode($wiki_link, ENT_QUOTES, 'UTF-8');
+
+              $source_id = $node->{$text_field_name}[0]['value'];
+
+              $data = whami_source_adapter_get_place_by_url($wiki_link, $source_id, $node_lang);
+
+              if(is_array($data) && count($data)) {
+                $block['subject'] = t('whami Place Info');
+                $block['content'] = $data[array_rand($data, 1)]['teaser'];
+              }
+            }
+
+          }
+
+          if(strcmp($delta, 'whami_places_nearby') == 0) {
+
+            $geo_field_name = variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'geofield'), '');
+            if (strlen($geo_field_name)) {
+
+              $point = geo_value($node->{$geo_field_name}[0]['wkb'], 'array', 'wkb');
+              $max_return_results = variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'max_results'), 10);
+              $max_request_results = variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'max_request_results'), 10);
+              $radius = variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'radius'), 10);
+
+              $source_id = variable_get(_whami_source_adapter_conf_variable_name('whami', $delta, $node->type, 'sources'), false);
+              if($source_id) {
+                $source_id = explode('+', $source_id);
+
+                $data = whami_source_adapter_geopoint_radius($point['lat'], $point['lon'], $radius, $source_id, $langcode, $max_return_results, $max_request_results);
+                $block['subject'] = t('whami Places nearby');
+                $block['content'] = theme('whami_place_list', $data);
+              }
+            }
+
+          }
+
+          return $block;
+        }
+
+      }
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function whami_source_adapter_theme() {
+  module_load_include('inc', 'whami_source_adapter', 'theme/whami_source_adapter.theme');
+  return _whami_source_adapter_get_theme_hook_array();
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function whami_source_adapter_perm() {
+  return array('access whami source adapter settings');
+}
+
+/**
+ *
+ * Implementation of hook_menu()
+ */
+function whami_source_adapter_menu() {
+  $items = array();
+
+  $items['admin/settings/whami_source_adapter'] = array(
+      'title' => t('whami Source Adapter settings'),
+      'description' => t('Configure the settings for the whami Source Adapter.'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('_whami_source_adapter_admin'),
+      'access arguments' => array('access whami source adapter settings'),
+      'file' => 'whami_source_adapter.admin.inc',
+  );
+
+  return $items;
+}
+
+function whami_source_adapter_init_sources($sources = false, $render = true) {
+  if(!$sources)
+    $sources = array_keys(whami_build_data_sources());
+
+  if($render)
+    whami_source_adapter_call_method('add_styles', '$params', $sources);
+}
