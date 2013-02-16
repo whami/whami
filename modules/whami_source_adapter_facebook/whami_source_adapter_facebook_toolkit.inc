@@ -48,9 +48,9 @@ function whami_facebook_get_fb_token_infos($fb_access_token = NULL, $type = NULL
     $param['access_token'] = $fb_access_token;
     $fb_query_data = whami_execute_graph_api_request('me/permissions', $param, $fb_access_token);
 
-    if ($data = print_r($fb_query_data, true)) {
-      $cached_results[$fb_access_token . 'user'] = $data;
-      return $data;
+    if ($fb_query_data) { //print_r($fb_query_data, true)
+      $cached_results[$fb_access_token . 'user'] = $fb_query_data;
+      return $fb_query_data;
     }
   }
   if(is_numeric(array_search('app', $type))) {
@@ -62,19 +62,20 @@ function whami_facebook_get_fb_token_infos($fb_access_token = NULL, $type = NULL
     //https://graph.facebook.com/app?access_token=APP_ACCESS_TOKEN
 
     $param['access_token'] = $fb_access_token;
-    $param['fields'] = 'id,name,app_domains,canvas_url';
+//    $param['fields'] = 'id,name,app_domains,canvas_url';
     $param['metadata'] = 1;
     $fb_query_data = whami_execute_graph_api_request('app', $param, $fb_access_token);
 
     if($fb_query_data['id'] && !strcmp($fb_query_data['metadata']['type'], 'application')
-        && isset($fb_query_data['app_domains']) && isset($fb_query_data['canvas_url'])) {
+//        && isset($fb_query_data['app_domains']) && isset($fb_query_data['canvas_url'])
+    ) {
 
 //      $fb_query_data = whami_execute_graph_api_request($fb_query_data['id'], $param, $fb_access_token);
 
       unset($fb_query_data['metadata']);
-      if ($data = print_r($fb_query_data, true)) {
-        $cached_results[$fb_access_token . 'app'] = $data;
-        return $data;
+      if ($fb_query_data) { //print_r($fb_query_data, true)
+        $cached_results[$fb_access_token . 'app'] = $fb_query_data;
+        return $fb_query_data;
       }
     }
   }
