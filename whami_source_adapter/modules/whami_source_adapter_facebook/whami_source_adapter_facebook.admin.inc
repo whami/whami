@@ -32,7 +32,7 @@ function _whami_source_adapter_facebook_admin() {
     $form['whami_facebook_token_custom'] = array(
       '#type' => 'item',
       '#title' => t('User defined Token infos'),
-      '#value' => whami_facebook_get_fb_token_infos($tmp_fb_token),
+      '#value' => print_r(whami_facebook_get_fb_token_infos($tmp_fb_token), true),
     );
   }
 
@@ -46,7 +46,7 @@ function _whami_source_adapter_facebook_admin() {
   $form['whami_facebook_token_app_infos'] = array(
     '#type' => 'item',
     '#title' => t('App Token Infos'),
-    '#value' => whami_facebook_get_fb_token_infos($fb_app_token, 'app'),
+    '#value' => print_r(whami_facebook_get_fb_token_infos($fb_app_token, 'app'), true),
   );
 
   $fb_user_token = whami_source_facebook_get_fb_token('user');
@@ -59,7 +59,7 @@ function _whami_source_adapter_facebook_admin() {
   $form['whami_facebook_token_user_infos'] = array(
     '#type' => 'item',
     '#title' => t('User Token Infos'),
-    '#value' => whami_facebook_get_fb_token_infos($fb_user_token, 'user'),
+    '#value' => print_r(whami_facebook_get_fb_token_infos($fb_user_token, 'user'), true),
   );
 
   whami_print_debug_log();
